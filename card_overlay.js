@@ -2220,24 +2220,23 @@
     hideNextEpisodeBadge(view);
 }
     function flushSeriesStatusPositions() {
-        var pend = _pendingSeriesStatus;
-        _pendingSeriesStatus = [];
-        if (!pend.length) return;
-        var ssRounded = getBadgeStyle() === 'rounded';
-        var measured = [];
-        for (var i = 0; i < pend.length; i++) { measured.push([pend[i][0], pend[i][1], measureSeriesStatusCenterBottom(pend[i][0])]); }
-        for (var j = 0; j < measured.length; j++) {
-            var label = measured[j][1], center = measured[j][2];
-            if (center !== null) label.style.setProperty('left', center + 'px', 'important');
-            else label.style.setProperty('left', '50%', 'important');
-            label.style.setProperty('right', 'auto', 'important');
-            label.style.setProperty('top', 'auto', 'important');
-            label.style.setProperty('bottom', ssRounded ? '0.4em' : '0', 'important');
-            label.style.setProperty('transform', 'translateX(-50%)', 'important');
-            label.style.setProperty('border-radius', ssRounded ? '0.5em' : '0.75em 0.75em 0 0', 'important');
-        }
-        for (var k = 0; k < measured.length; k++) hideNextEpisodeBadge(measured[k][0]);
+    var pend = _pendingSeriesStatus;
+    _pendingSeriesStatus = [];
+    if (!pend.length) return;
+    var ssRounded = getBadgeStyle() === 'rounded';
+    var measured = [];
+    for (var i = 0; i < pend.length; i++) { measured.push([pend[i][0], pend[i][1]]); }
+    for (var j = 0; j < measured.length; j++) {
+        var label = measured[j][1];
+        label.style.setProperty('left', '0.4em', 'important');
+        label.style.setProperty('right', 'auto', 'important');
+        label.style.setProperty('top', 'auto', 'important');
+        label.style.setProperty('bottom', ssRounded ? '0.4em' : '0', 'important');
+        label.style.setProperty('transform', 'none', 'important');
+        label.style.setProperty('border-radius', ssRounded ? '0.5em' : '0.75em 0.75em 0 0', 'important');
     }
+    for (var k = 0; k < measured.length; k++) hideNextEpisodeBadge(measured[k][0]);
+}
     function applyCardSeriesStatus(card, text, status) {
         if (!text) { removeCardSeriesStatus(card); return; }
         var view = card && card.querySelector && card.querySelector('.card__view');
