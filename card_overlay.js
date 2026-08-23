@@ -2107,8 +2107,8 @@
         if (typeLabel) {
             typeStyle = window.getComputedStyle(typeLabel);
             // Тут ти можеш налаштувати розмір плашки:
-            props.push(['font-size', '0.9em']);     // Розмір тексту
-            props.push(['line-height', '1.4']);      // Висота рядка
+            props.push(['font-size', '1em']);     // Розмір тексту
+            props.push(['line-height', '1.3']);      // Висота рядка
             props.push(['padding', '0.2em 0.5em']);  // Внутрішні відступи (вертикаль, горизонталь)
         }
 
