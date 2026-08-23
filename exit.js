@@ -2,12 +2,10 @@
     'use strict';
 
     function addButtons() {
-        // Якщо кнопки вже є в DOM, нічого не робимо
-        if ($('#RELOAD').length > 0) return;
+        // Видаляємо старі кнопки, якщо вони раптом вже є
+        $('#RELOAD, #EXIT').remove();
 
-        var container = $('#app > div.head > div > div.head__actions');
-        if (container.length === 0) return;
-
+        // HTML кнопок (шляхи SVG взяті з твого оригінального плагіна)
         var my_reload = '<div id="RELOAD" class="head__action selector" tabindex="0">' +
             '<svg fill="#ffffff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
             '<path d="M4,12a1,1,0,0,1-2,0A9.983,9.983,0,0,1,18.242,4.206V2.758a1,1,0,1,1,2,0v4a1,1,0,0,1-1,1h-4a1,1,0,0,1,0-2h1.743A7.986,7.986,0,0,0,4,12Zm17-1a1,1,0,0,0-1,1A7.986,7.986,0,0,1,7.015,18.242H8.757a1,1,0,1,0,0-2h-4a1,1,0,0,0-1,1v4a1,1,0,0,0,2,0V19.794A9.984,9.984,0,0,0,22,12,1,1,0,0,0,21,11Z" fill="currentColor"></path>' +
@@ -20,17 +18,21 @@
             '<line x1="16" y1="8" x2="8" y2="16" stroke="currentColor" stroke-width="2"/>' +
             '</svg></div>';
 
-        container.append(my_reload).append(my_exit);
+        // Вставляємо кнопки
+        var container = $('#app > div.head > div > div.head__actions');
+        container.append(my_reload);
+        container.append(my_exit);
 
+        // Подія для Перезавантаження (Використовуємо надійний метод Lampa)
         $('#RELOAD').on('hover:enter hover:click hover:touch', function() {
-            // Найбільш надійний метод для Lampa
-            if (window.Lampa.App && typeof window.Lampa.App.reload === 'function') {
+            if (window.Lampa && window.Lampa.App && typeof window.Lampa.App.reload === 'function') {
                 window.Lampa.App.reload();
             } else {
                 location.reload();
             }
         });
 
+        // Подія для Виходу
         $('#EXIT').on('hover:enter hover:click hover:touch', function() {
             if (Lampa.Platform.is('android')) Lampa.Android.exit();
             else if (Lampa.Platform.is('tizen')) tizen.application.getCurrentApplication().exit();
@@ -40,21 +42,12 @@
         });
     }
 
-    // Створюємо спостерігач, який додасть кнопки, якщо вони зникнуть або сторінка оновиться
-    var observer = new MutationObserver(addButtons);
-    
-    // Запускаємо додавання
+    // Запуск при готовності
     if (window.appready) {
         addButtons();
     } else {
         Lampa.Listener.follow('app', function(e) {
             if (e.type === 'ready') addButtons();
         });
-    }
-
-    // Запускаємо спостереження за головним контейнером, щоб кнопки не пропадали
-    var target = document.querySelector('#app');
-    if (target) {
-        observer.observe(target, { childList: true, subtree: true });
     }
 })();
