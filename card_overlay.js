@@ -2370,7 +2370,7 @@
         }
         lbl.attr('data-card-overlay-type-label', '1').show();
         lbl.removeClass('serial-label movie-label');
-        lbl.text(isTV ? 'Сериал' : 'Фильм');
+        lbl.text(isTV ? 'Серіал' : 'Фільм');
         if (isTV) updateTypeLabelEpisodeInfo(card, meta);
         else removeEpisodeLabel(card);
         lbl.css({ backgroundColor: getTypeLabelBackground(isTV) });
