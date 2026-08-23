@@ -2211,12 +2211,12 @@
     function positionCardSeriesStatus(view, label) {
     if (_batchOverlayPositions) { _pendingSeriesStatus.push([view, label]); return; }
     var ssRounded = getBadgeStyle() === 'rounded';
-    label.style.setProperty('left', '0.4em', 'important');
+    label.style.setProperty('left', '0.0em', 'important');
     label.style.setProperty('right', 'auto', 'important');
     label.style.setProperty('top', 'auto', 'important');
     label.style.setProperty('bottom', ssRounded ? '0.4em' : '0', 'important');
     label.style.setProperty('transform', 'none', 'important');
-    label.style.setProperty('border-radius', ssRounded ? '0.5em' : '0.75em 0.75em 0 0', 'important');
+    label.style.setProperty('border-radius', ssRounded ? '0.5em' : '0.75em 0.75em 0 0.75em', 'important');
     hideNextEpisodeBadge(view);
 }
     function flushSeriesStatusPositions() {
@@ -2228,12 +2228,12 @@
     for (var i = 0; i < pend.length; i++) { measured.push([pend[i][0], pend[i][1]]); }
     for (var j = 0; j < measured.length; j++) {
         var label = measured[j][1];
-        label.style.setProperty('left', '0.4em', 'important');
+        label.style.setProperty('left', '0.0em', 'important');
         label.style.setProperty('right', 'auto', 'important');
         label.style.setProperty('top', 'auto', 'important');
         label.style.setProperty('bottom', ssRounded ? '0.4em' : '0', 'important');
         label.style.setProperty('transform', 'none', 'important');
-        label.style.setProperty('border-radius', ssRounded ? '0.5em' : '0.75em 0.75em 0 0', 'important');
+        label.style.setProperty('border-radius', ssRounded ? '0.5em' : '0.75em 0.75em 0 0.75em', 'important');
     }
     for (var k = 0; k < measured.length; k++) hideNextEpisodeBadge(measured[k][0]);
 }
