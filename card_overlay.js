@@ -2406,7 +2406,7 @@
             backgroundColor: getTypeLabelBackground(isTV)
         });
         if (isTypeLabelsColoredOn()) lbl.addClass(isTV ? 'serial-label' : 'movie-label');
-        lbl.text(isTV ? 'Сериал' : 'Фильм');
+        lbl.text(isTV ? 'Серіал' : 'Фільм');
         poster.css('position', 'relative').append(lbl);
     }
 
