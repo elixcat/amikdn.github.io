@@ -21,6 +21,14 @@
       location.reload();
     }
   }
+
+  function reloadLamp() {
+    try {
+      location.reload();
+    } catch (e) {
+      window.location.href = window.location.href;
+    }
+  }
   
   function addListener(element, callback) {
     if (typeof $ !== 'undefined' && typeof $(element).on === 'function') {
@@ -58,10 +66,14 @@
     headerActions.insertAdjacentHTML('beforeend', reloadButtonHTML + exitButtonHTML);
 
     var reloadButton = document.getElementById('RELOAD');
-    if (reloadButton) addListener(reloadButton, function() { window.location.reload(); });
+    if (reloadButton) {
+      addListener(reloadButton, reloadLamp);
+    }
 
     var exitButton = document.getElementById('EXIT');
-    if (exitButton) addListener(exitButton, exitLamp);
+    if (exitButton) {
+      addListener(exitButton, exitLamp);
+    }
   }
 
   if (window.appready) {
