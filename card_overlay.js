@@ -2209,18 +2209,16 @@
         } catch (e3) { return null; }
     }
     function positionCardSeriesStatus(view, label) {
-        if (_batchOverlayPositions) { _pendingSeriesStatus.push([view, label]); return; }
-        var ssRounded = getBadgeStyle() === 'rounded';
-        var center = measureSeriesStatusCenterBottom(view);
-        if (center !== null) label.style.setProperty('left', center + 'px', 'important');
-        else label.style.setProperty('left', '50%', 'important');
-        label.style.setProperty('right', 'auto', 'important');
-        label.style.setProperty('top', 'auto', 'important');
-        label.style.setProperty('bottom', ssRounded ? '0.4em' : '0', 'important');
-        label.style.setProperty('transform', 'translateX(-50%)', 'important');
-        label.style.setProperty('border-radius', ssRounded ? '0.5em' : '0.75em 0.75em 0 0', 'important');
-        hideNextEpisodeBadge(view);
-    }
+    if (_batchOverlayPositions) { _pendingSeriesStatus.push([view, label]); return; }
+    var ssRounded = getBadgeStyle() === 'rounded';
+    label.style.setProperty('left', '0.4em', 'important');
+    label.style.setProperty('right', 'auto', 'important');
+    label.style.setProperty('top', 'auto', 'important');
+    label.style.setProperty('bottom', ssRounded ? '0.4em' : '0', 'important');
+    label.style.setProperty('transform', 'none', 'important');
+    label.style.setProperty('border-radius', ssRounded ? '0.5em' : '0.75em 0.75em 0 0', 'important');
+    hideNextEpisodeBadge(view);
+}
     function flushSeriesStatusPositions() {
         var pend = _pendingSeriesStatus;
         _pendingSeriesStatus = [];
