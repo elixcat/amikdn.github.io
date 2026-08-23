@@ -91,10 +91,7 @@
   function insertButtons() {
     var Platform = Lampa.Platform;
 
-    // Allow plugin on both mobile and tablet devices
-    if (!Platform.screen('mobile') && !Platform.screen('tablet')) {
-      return;
-    }
+    // No platform check: insert buttons on all devices
 
     var navigationBar = document.querySelector('.navigation-bar__body');
     if (!navigationBar) return;
@@ -342,11 +339,7 @@
   }
 
   function init() {
-    // Allow plugin on both mobile and tablet devices
-    if (!Platform.screen('mobile') && !Platform.screen('tablet')) {
-      console.log('NavBarExtension', 'Plugin skipped - not a mobile or tablet platform');
-      return;
-    }
+    // No platform check: initialize on all devices
 
     console.log('NavBarExtension', 'Plugin loaded, version:', config.version);
 
