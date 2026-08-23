@@ -2001,7 +2001,7 @@
         return 'S' + seasonNumber + ':E' + episodeNumber;
     }
     function getSeriesStatusLabelText(status) {
-        return status === 'Canceled' ? 'Отменён' : 'Завершён';
+        return status === 'Canceled' ? 'Скасовано' : 'Завершено';
     }
     function deriveEpisodeLabelDisplay(entry) {
         if (!entry) return '';
@@ -2011,12 +2011,12 @@
         return entry.text || '';
     }
     function getSeriesFullStatusText(status) {
-        if (status === 'Ended') return 'Завершён';
-        if (status === 'Canceled') return 'Отменён';
-        if (status === 'Returning Series') return 'Онгоинг';
-        if (status === 'In Production') return 'В производстве';
-        if (status === 'Planned') return 'Запланирован';
-        if (status === 'Pilot') return 'Пилотный';
+        if (status === 'Ended') return 'Завершено';
+        if (status === 'Canceled') return 'Скасовано';
+        if (status === 'Returning Series') return 'Онгоїнг';
+        if (status === 'In Production') return 'У виробництві';
+        if (status === 'Planned') return 'Заплановано';
+        if (status === 'Pilot') return 'Пілотний';
         return status || '';
     }
     function getSeriesStatusColor(status) {
@@ -2471,7 +2471,7 @@
         if (!airedEpisodes) airedEpisodes = totalEpisodes;
         if (totalEpisodes > 0 && airedEpisodes > totalEpisodes) airedEpisodes = totalEpisodes;
         function plural(n, one, two, five) { var m = Math.abs(n) % 100; if (m >= 5 && m <= 20) return five; m %= 10; if (m === 1) return one; if (m >= 2 && m <= 4) return two; return five; }
-        function getStatusText(st) { if (st === 'Ended') return 'Завершён'; if (st === 'Canceled') return 'Отменён'; if (st === 'Returning Series') return 'Онгоинг'; if (st === 'In Production') return 'В производстве'; return st || 'Неизвестно'; }
+        function getStatusText(st) { if (st === 'Ended') return 'Завершено'; if (st === 'Canceled') return 'Скасовано'; if (st === 'Returning Series') return 'Онгоїнг'; if (st === 'In Production') return 'У виробництві'; return st || 'Невідомо'; }
         var displaySeasons, displayEpisodes;
         if (seasonInfoSettings.seasons_info_mode === 'aired') { displaySeasons = airedSeasons; displayEpisodes = airedEpisodes; }
         else { displaySeasons = totalSeasons; displayEpisodes = totalEpisodes; }
@@ -2607,8 +2607,8 @@
             var el = $(this);
             if (el.hasClass('qualview-quality')) return;
             var t = (el.text() || '').trim();
-            if (/^завершено$/i.test(t)) el.text('Завершён');
-            else if (/^отменено$/i.test(t)) el.text('Отменён');
+            if (/^завершено$/i.test(t)) el.text('Завершено');
+            else if (/^отменено$/i.test(t)) el.text('Скасовано');
         });
     }
     function colorizeAgeRating(render) {
