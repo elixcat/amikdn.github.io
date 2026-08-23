@@ -5,6 +5,7 @@
     try {
       if (Lampa && Lampa.Activity) Lampa.Activity.out();
     } catch (e) {}
+    
     if (Lampa && Lampa.Platform) {
       if (Lampa.Platform.is('tizen')) {
         tizen.application.getCurrentApplication().exit();
@@ -15,18 +16,19 @@
       } else if (Lampa.Platform.is('orsay')) {
         Lampa.Orsay.exit();
       } else {
-        location.reload();
+        window.location.reload();
       }
     } else {
-      location.reload();
+      window.location.reload();
     }
   }
 
+  // Функція для надійного перезавантаження
   function reloadLamp() {
-    try {
-      location.reload();
-    } catch (e) {
-      window.location.href = window.location.href;
+    if (Lampa.App && typeof Lampa.App.reload === 'function') {
+      Lampa.App.reload();
+    } else {
+      window.location.reload();
     }
   }
   
@@ -50,7 +52,7 @@
     var reloadButtonHTML =
       '<div id="RELOAD" class="head__action selector reload-screen" tabindex="0">' +
         '<svg fill="#ffffff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
-          '<path d="M4,12a1,1,0,0,1-2,0A9.983,9.983,0,0,1,18.242,4.206V2.758a1,1,0,1,1,2,0v4a1,1,0,0,1-1,1h-4a1,1,0,0,1,0-2h1.743A7.986,7.986,0,0,0,4,12Zm17-1a1,1,0,0,0-1,1A7.986,7.986,0,0,1,7.015,18.794v1.448a1,1,0,1,1-2,0v-4a1,1,0,0,1,1-1h4a1,1,0,0,1,0,2H8.257a7.986,7.986,0,0,0,12.743-5.794Z"/>' +
+          '<path d="M4,12a1,1,0,0,1-2,0A9.983,9.983,0,0,1,18.242,4.206V2.758a1,1,0,1,1,2,0v4a1,1,0,0,1-1,1h-4a1,1,0,0,1,0-2h1.743A7.986,7.986,0,0,0,4,12Zm17-1a1,1,0,0,0-1,1A7.986,7.986,0,0,1,7.015,18.242H8.757a1,1,0,1,0,0-2h-4a1,1,0,0,0-1,1v4a1,1,0,0,0,2,0V19.794A9.984,9.984,0,0,0,22,12,1,1,0,0,0,21,11Z" fill="currentColor"></path>' +
         '</svg>' +
       '</div>';
 
@@ -66,14 +68,10 @@
     headerActions.insertAdjacentHTML('beforeend', reloadButtonHTML + exitButtonHTML);
 
     var reloadButton = document.getElementById('RELOAD');
-    if (reloadButton) {
-      addListener(reloadButton, reloadLamp);
-    }
+    if (reloadButton) addListener(reloadButton, reloadLamp); // Використовуємо нову функцію
 
     var exitButton = document.getElementById('EXIT');
-    if (exitButton) {
-      addListener(exitButton, exitLamp);
-    }
+    if (exitButton) addListener(exitButton, exitLamp);
   }
 
   if (window.appready) {
