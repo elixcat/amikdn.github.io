@@ -2119,7 +2119,7 @@
                 topOffset = typeLabel.offsetTop + typeLabel.offsetHeight + typeGap;
             }
             if (rounded) props.push(['left', '0.4em'], ['right', 'auto'], ['top', topOffset + 'px'], ['bottom', 'auto'], ['transform', 'none'], ['border-radius', '0.5em']);
-            else props.push(['left', '0'], ['right', 'auto'], ['top', topOffset + 'px'], ['bottom', 'auto'], ['transform', 'none'], ['border-radius', '0 0.75em 0.75em 0']);
+                        else props.push(['left', '0'], ['right', 'auto'], ['top', '0'], ['bottom', 'auto'], ['transform', 'none'], ['border-radius', '1em 0 0.75em 0.75em']);
             return { label: label, props: props };
         }
         var epBottom = rounded ? '0.4em' : '0';
