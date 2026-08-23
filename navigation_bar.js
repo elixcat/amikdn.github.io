@@ -91,7 +91,8 @@
   function insertButtons() {
     var Platform = Lampa.Platform;
 
-    if (!Platform.screen('mobile')) {
+    // Allow plugin on both mobile and tablet devices
+    if (!Platform.screen('mobile') && !Platform.screen('tablet')) {
       return;
     }
 
@@ -218,21 +219,26 @@
                 text-overflow: ellipsis;
             }
 
-            body.true--mobile.orientation--landscape .navigation-bar__body {
+            /* landscape adjustments for mobile and tablet */
+            body.true--mobile.orientation--landscape .navigation-bar__body,
+            body.true--tablet.orientation--landscape .navigation-bar__body {
                 padding: 0.5em 0.3em !important;
             }
 
-            body.true--mobile.orientation--landscape .navigation-bar__item {
+            body.true--mobile.orientation--landscape .navigation-bar__item,
+            body.true--tablet.orientation--landscape .navigation-bar__item {
                 padding: 0 0.2em;
             }
 
-            body.true--mobile.orientation--landscape .navigation-bar__icon {
+            body.true--mobile.orientation--landscape .navigation-bar__icon,
+            body.true--tablet.orientation--landscape .navigation-bar__icon {
                 width: 1.5em !important;
                 height: 1.5em !important;
                 margin-bottom: 0.3em !important;
             }
 
-            body.true--mobile.orientation--landscape .navigation-bar__label {
+            body.true--mobile.orientation--landscape .navigation-bar__label,
+            body.true--tablet.orientation--landscape .navigation-bar__label {
                 font-size: 0.65em !important;
             }
 
@@ -336,8 +342,9 @@
   }
 
   function init() {
-    if (!Platform.screen('mobile')) {
-      console.log('NavBarExtension', 'Plugin skipped - not a mobile platform');
+    // Allow plugin on both mobile and tablet devices
+    if (!Platform.screen('mobile') && !Platform.screen('tablet')) {
+      console.log('NavBarExtension', 'Plugin skipped - not a mobile or tablet platform');
       return;
     }
 
