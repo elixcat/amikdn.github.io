@@ -91,7 +91,9 @@
   function insertButtons() {
     var Platform = Lampa.Platform;
 
-    // No platform check: insert buttons on all devices
+    if (!Platform.screen('mobile')) {
+      return;
+    }
 
     var navigationBar = document.querySelector('.navigation-bar__body');
     if (!navigationBar) return;
@@ -121,9 +123,8 @@
       mainButton.style.order = '3';
     }
 
-    // Show all menu buttons except main and settings (ignore storage flags)
     var menuButtons = config.menuButtons.filter(function (btn) {
-      return btn.action !== 'main' && btn.action !== 'settings';
+      return btn.action !== 'main' && btn.action !== 'settings' && isButtonEnabled(btn);
     }).sort(function (a, b) {
       return a.order - b.order;
     });
@@ -217,26 +218,21 @@
                 text-overflow: ellipsis;
             }
 
-            /* landscape adjustments for mobile and tablet */
-            body.true--mobile.orientation--landscape .navigation-bar__body,
-            body.true--tablet.orientation--landscape .navigation-bar__body {
+            body.true--mobile.orientation--landscape .navigation-bar__body {
                 padding: 0.5em 0.3em !important;
             }
 
-            body.true--mobile.orientation--landscape .navigation-bar__item,
-            body.true--tablet.orientation--landscape .navigation-bar__item {
+            body.true--mobile.orientation--landscape .navigation-bar__item {
                 padding: 0 0.2em;
             }
 
-            body.true--mobile.orientation--landscape .navigation-bar__icon,
-            body.true--tablet.orientation--landscape .navigation-bar__icon {
+            body.true--mobile.orientation--landscape .navigation-bar__icon {
                 width: 1.5em !important;
                 height: 1.5em !important;
                 margin-bottom: 0.3em !important;
             }
 
-            body.true--mobile.orientation--landscape .navigation-bar__label,
-            body.true--tablet.orientation--landscape .navigation-bar__label {
+            body.true--mobile.orientation--landscape .navigation-bar__label {
                 font-size: 0.65em !important;
             }
 
@@ -340,7 +336,10 @@
   }
 
   function init() {
-    // No platform check: initialize on all devices
+    if (!Platform.screen('mobile')) {
+      console.log('NavBarExtension', 'Plugin skipped - not a mobile platform');
+      return;
+    }
 
     console.log('NavBarExtension', 'Plugin loaded, version:', config.version);
 
