@@ -2746,7 +2746,7 @@
 
             modal.append($('<div class="comodal__divider"></div>'));
             modal.append($('<div class="comodal__section">Лейблы типа</div>'));
-            var rowTypeLabelsShow = addTriggerRow('Показывать «Фильм»/«Сериал»', 'type_labels_show', DEFAULTS.type_labels_show);
+            var rowTypeLabelsShow = addTriggerRow('Показывать «Фільм»/«Серіал»', 'type_labels_show', DEFAULTS.type_labels_show);
             var rowTypeLabelsColored = addTriggerRow('Цветные лейблы типа', 'type_labels_colored', DEFAULTS.type_labels_colored);
             var rowTypeLabelsEpisodeInfo = addTriggerRow('Серии в лейбле «Сериал»', TYPE_LABEL_EPISODE_INFO_KEY, DEFAULTS[TYPE_LABEL_EPISODE_INFO_KEY]);
             var rowSeasonInfoDetailsPosition = addCycleRow('Позиция сезонов и серий', 'seasons_info_details_position', SEASON_INFO_DETAILS_POSITION_LABELS, DEFAULTS.seasons_info_details_position);
