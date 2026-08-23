@@ -121,8 +121,9 @@
       mainButton.style.order = '3';
     }
 
+    // Show all menu buttons except main and settings (ignore storage flags)
     var menuButtons = config.menuButtons.filter(function (btn) {
-      return btn.action !== 'main' && btn.action !== 'settings' && isButtonEnabled(btn);
+      return btn.action !== 'main' && btn.action !== 'settings';
     }).sort(function (a, b) {
       return a.order - b.order;
     });
