@@ -2093,38 +2093,49 @@
         }
         return null;
     }
+
     function measureEpisodeLabelPosition(card) {
         var view = card && card.querySelector && card.querySelector('.card__view');
         if (!view) return null;
         var label = view.querySelector('.card__episode-label');
         if (!label) return null;
         var props = [];
-        // ... всередині measureEpisodeLabelPosition ...
+        
         var typeLabel = view.querySelector('.card__type[data-card-overlay-type-label="1"], .card__type');
         var typeStyle = null;
+
         if (typeLabel) {
             typeStyle = window.getComputedStyle(typeLabel);
-            // Замість успадкування розміру, поставимо свій (наприклад, 0.85em)
-            props.push(['font-size', '0.85em']); 
-            props.push(['line-height', '1']);
-            // Зменшимо внутрішні відступи (padding), щоб плашка стала компактнішою
-            props.push(['padding', '0.1em 0.3em']);
+            // Тут ти можеш налаштувати розмір плашки:
+            props.push(['font-size', '0.75em']);     // Розмір тексту
+            props.push(['line-height', '1.2']);      // Висота рядка
+            props.push(['padding', '0.2em 0.5em']);  // Внутрішні відступи (вертикаль, горизонталь)
         }
+
         var rounded = getBadgeStyle() === 'rounded';
         var cornerShadowOn = getCornerShadow();
         var epAtBottom = !(isEpisodeLabelUnderType() || isCardSeriesFullInfoOn());
         var epShadowY = (cornerShadowOn && !rounded && epAtBottom) ? '-0.12em' : '0.12em';
+        
         props.push(['box-shadow', (rounded || cornerShadowOn) ? '0 ' + epShadowY + ' 0.4em rgba(0,0,0,0.55)' : 'none']);
+
         if (isEpisodeLabelUnderType() || isCardSeriesFullInfoOn()) {
             var topOffset = 0;
             if (typeLabel) {
                 var typeGap = (0.15 * parseFloat(typeStyle.fontSize)) || 6;
                 topOffset = typeLabel.offsetTop + typeLabel.offsetHeight + typeGap;
             }
-            if (rounded) props.push(['left', '0.4em'], ['right', 'auto'], ['top', topOffset + 'px'], ['bottom', 'auto'], ['transform', 'none'], ['border-radius', '0.5em']);
-                        else props.push(['left', '0'], ['right', 'auto'], ['top', '0'], ['bottom', 'auto'], ['transform', 'none'], ['border-radius', '0.9em 0.75em 0.75em 0.75em']);
+            
+            if (rounded) {
+                props.push(['left', '0.4em'], ['right', 'auto'], ['top', topOffset + 'px'], ['bottom', 'auto'], ['transform', 'none'], ['border-radius', '0.5em']);
+            } else {
+                // Твої налаштування: притиснуто вліво-вверх, заокруглення 0.9em
+                props.push(['left', '0'], ['right', 'auto'], ['top', '0'], ['bottom', 'auto'], ['transform', 'none'], ['border-radius', '0.9em 0.75em 0.75em 0.75em']);
+            }
             return { label: label, props: props };
         }
+        
+        // ... далі код продовжується як був ...
         var epBottom = rounded ? '0.4em' : '0';
         var epRadius = rounded ? '0.5em' : '0.75em 0.75em 0 0';
         var center = measureCenterBottom(view);
