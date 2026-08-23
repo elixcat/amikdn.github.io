@@ -23,20 +23,27 @@
     }
   }
 
-  // Функція для надійного перезавантаження
   function reloadLamp() {
-    if (Lampa.App && typeof Lampa.App.reload === 'function') {
-      Lampa.App.reload();
+    // Найнадійніший метод для Android/Lampa
+    if (window.Lampa && window.Lampa.App && typeof window.Lampa.App.reload === 'function') {
+      window.Lampa.App.reload();
     } else {
-      window.location.reload();
+      window.location.href = window.location.origin + window.location.pathname;
     }
   }
   
   function addListener(element, callback) {
     if (typeof $ !== 'undefined' && typeof $(element).on === 'function') {
-      $(element).on('hover:enter hover:click hover:touch', callback);
+      $(element).on('hover:enter hover:click hover:touch', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        callback();
+      });
     } else {
-      element.addEventListener('click', callback);
+      element.addEventListener('click', function(e) {
+        e.preventDefault();
+        callback();
+      });
       element.addEventListener('keydown', function(e) {
         if (e.keyCode === 13 || e.keyCode === 32) {
           callback();
@@ -47,7 +54,7 @@
 
   function addButtons() {
     var headerActions = document.querySelector('#app .head__actions');
-    if (!headerActions) return;
+    if (!headerActions || document.getElementById('RELOAD')) return;
 
     var reloadButtonHTML =
       '<div id="RELOAD" class="head__action selector reload-screen" tabindex="0">' +
@@ -68,7 +75,7 @@
     headerActions.insertAdjacentHTML('beforeend', reloadButtonHTML + exitButtonHTML);
 
     var reloadButton = document.getElementById('RELOAD');
-    if (reloadButton) addListener(reloadButton, reloadLamp); // Використовуємо нову функцію
+    if (reloadButton) addListener(reloadButton, reloadLamp);
 
     var exitButton = document.getElementById('EXIT');
     if (exitButton) addListener(exitButton, exitLamp);
