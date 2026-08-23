@@ -2230,7 +2230,7 @@
     label.style.setProperty('top', 'auto', 'important');
     label.style.setProperty('bottom', ssRounded ? '0.4em' : '0', 'important');
     label.style.setProperty('transform', 'none', 'important');
-    label.style.setProperty('border-radius', ssRounded ? '0.5em' : '0.75em 0.75em 0 1em', 'important');
+    label.style.setProperty('border-radius', ssRounded ? '0.5em' : '0.75em 0.75em 0.75em 1em', 'important');
     hideNextEpisodeBadge(view);
 }
     function flushSeriesStatusPositions() {
