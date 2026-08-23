@@ -2099,13 +2099,16 @@
         var label = view.querySelector('.card__episode-label');
         if (!label) return null;
         var props = [];
+        // ... всередині measureEpisodeLabelPosition ...
         var typeLabel = view.querySelector('.card__type[data-card-overlay-type-label="1"], .card__type');
         var typeStyle = null;
         if (typeLabel) {
             typeStyle = window.getComputedStyle(typeLabel);
-            props.push(['font-size', typeStyle.fontSize]);
-            props.push(['line-height', typeStyle.lineHeight === 'normal' ? '1' : typeStyle.lineHeight]);
-            props.push(['padding', typeStyle.paddingTop + ' ' + typeStyle.paddingRight + ' ' + typeStyle.paddingBottom + ' ' + typeStyle.paddingLeft]);
+            // Замість успадкування розміру, поставимо свій (наприклад, 0.85em)
+            props.push(['font-size', '0.85em']); 
+            props.push(['line-height', '1']);
+            // Зменшимо внутрішні відступи (padding), щоб плашка стала компактнішою
+            props.push(['padding', '0.1em 0.3em']);
         }
         var rounded = getBadgeStyle() === 'rounded';
         var cornerShadowOn = getCornerShadow();
