@@ -3484,41 +3484,6 @@
             if (e.name === 'mine_reactions') later(applyPlayerReactions, 200, 'reactions-mine');
             if (e.name === 'animated_reactions_in_player') refreshPlayerReactions();
         });
-            applyDarkNightTheme();
-    } 
-
-    function applyDarkNightTheme() {
-        var style = document.createElement('style');
-        style.id = 'dark-night-theme';
-        style.type = 'text/css';
-        style.textContent = `
-            body { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%) !important; color: #ffffff !important; }
-            
-            /* Примусово задаємо фон для всіх селекторів у фокусі */
-            .selector.focus, .menu__item.focus, .button.focus, .server.focus, .head__action.focus { 
-                background-image: none !important; 
-                background-color: transparent !important; 
-                background: linear-gradient(to right, #8a2387, #e94057, #f27121) !important; 
-                color: #fff !important; 
-                box-shadow: 0 0 20px rgba(233, 64, 87, 0.5) !important;
-                border: 1px solid rgba(255, 255, 255, 0.3) !important;
-                opacity: 1 !important;
-            }
-
-            /* Щоб текст балансера (назва та якість) залишався видимим */
-            .server.focus .server__name, 
-            .server.focus .server__quality {
-                color: #ffffff !important;
-                text-shadow: 0 0 5px rgba(0,0,0,0.5) !important;
-            }
-
-            @keyframes night-pulse { 
-                0% { box-shadow: 0 0 10px rgba(233, 64, 87, 0.5); } 
-                50% { box-shadow: 0 0 20px rgba(242, 113, 33, 0.5); } 
-                100% { box-shadow: 0 0 10px rgba(138, 35, 135, 0.5); } 
-            }
-        `;
-        document.head.appendChild(style);
     }
 
     function destroyPlugin() {
@@ -3537,9 +3502,6 @@
 
         var style = document.getElementById('card-overlay-style');
         if (style && style.parentNode) style.parentNode.removeChild(style);
-
-        var dnStyle = document.getElementById('dark-night-theme');
-        if (dnStyle && dnStyle.parentNode) dnStyle.parentNode.removeChild(dnStyle);
 
         window.__card_overlay_initialized__ = false;
     }
