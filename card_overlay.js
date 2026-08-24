@@ -2381,7 +2381,7 @@
         }
         lbl.attr('data-card-overlay-type-label', '1').show();
         lbl.removeClass('serial-label movie-label');
-        lbl.text(isTV ? 'Серіал' : 'Фільм');
+        lbl.text(isTV ? '' : 'Фільм');
         if (isTV) updateTypeLabelEpisodeInfo(card, meta);
         else removeEpisodeLabel(card);
         lbl.css({ backgroundColor: getTypeLabelBackground(isTV) });
@@ -2417,7 +2417,7 @@
             backgroundColor: getTypeLabelBackground(isTV)
         });
         if (isTypeLabelsColoredOn()) lbl.addClass(isTV ? 'serial-label' : 'movie-label');
-        lbl.text(isTV ? 'Серіал' : 'Фільм');
+        lbl.text(isTV ? '' : 'Фільм');
         poster.css('position', 'relative').append(lbl);
     }
 
