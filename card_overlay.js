@@ -2486,8 +2486,8 @@
         var displaySeasons, displayEpisodes;
         if (seasonInfoSettings.seasons_info_mode === 'aired') { displaySeasons = airedSeasons; displayEpisodes = airedEpisodes; }
         else { displaySeasons = totalSeasons; displayEpisodes = totalEpisodes; }
-        var seasonsText = plural(displaySeasons, 'сезон', 'сезона', 'сезонов');
-        var episodesText = plural(displayEpisodes, 'серия', 'серии', 'серий');
+        var seasonsText = plural(displaySeasons, 'сезон', 'сезона', 'сезонів');
+        var episodesText = plural(displayEpisodes, 'серія', 'серії', 'серій');
         var isCompleted = (status === 'Ended' || status === 'Canceled');
         var bgColor = isCompleted ? 'rgba(33,150,243,0.8)' : 'rgba(244,67,54,0.8)';
         var statusText = getStatusText(status);
