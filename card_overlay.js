@@ -2379,11 +2379,21 @@
             lbl = $('<div class="card__type"></div>');
             view.append(lbl);
         }
-        lbl.attr('data-card-overlay-type-label', '1').show();
+        lbl.attr('data-card-overlay-type-label', '1');
+        
+        // Логіка: якщо це серіал, то ховаємо плашку, якщо фільм — пишемо "Фільм"
+        if (isTV) {
+            lbl.hide();
+        } else {
+            lbl.show();
+            lbl.text('Фільм');
+        }
+
         lbl.removeClass('serial-label movie-label');
-        lbl.text(isTV ? '' : 'Фільм');
+        
         if (isTV) updateTypeLabelEpisodeInfo(card, meta);
         else removeEpisodeLabel(card);
+        
         lbl.css({ backgroundColor: getTypeLabelBackground(isTV) });
         if (isTypeLabelsColoredOn()) lbl.addClass(isTV ? 'serial-label' : 'movie-label');
     }
@@ -2417,7 +2427,7 @@
             backgroundColor: getTypeLabelBackground(isTV)
         });
         if (isTypeLabelsColoredOn()) lbl.addClass(isTV ? 'serial-label' : 'movie-label');
-        lbl.text(isTV ? '' : 'Фільм');
+        lbl.text(isTV ? 'Серіал' : 'Фільм');
         poster.css('position', 'relative').append(lbl);
     }
 
