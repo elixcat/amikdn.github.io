@@ -3493,24 +3493,30 @@
         style.type = 'text/css';
         style.textContent = `
             body { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%) !important; color: #ffffff !important; }
-            .menu__item.focus, .menu__item.traverse, .menu__item.hover, 
-            .settings-folder.focus, .settings-param.focus, 
-            .selectbox-item.focus, .full-start__button.focus, 
-            .full-descr__tag.focus, .player-panel .button.focus,
-            .server.focus, .simple-button.focus, .button.focus { 
+            
+            /* Примусово задаємо фон для всіх селекторів у фокусі */
+            .selector.focus, .menu__item.focus, .button.focus, .server.focus, .head__action.focus { 
+                background-image: none !important; 
+                background-color: transparent !important; 
                 background: linear-gradient(to right, #8a2387, #e94057, #f27121) !important; 
                 color: #fff !important; 
-                box-shadow: 0 0 30px rgba(233, 64, 87, 0.3) !important; 
-                animation: night-pulse 2s infinite !important; 
+                box-shadow: 0 0 20px rgba(233, 64, 87, 0.5) !important;
+                border: 1px solid rgba(255, 255, 255, 0.3) !important;
+                opacity: 1 !important;
             }
+
+            /* Щоб текст балансера (назва та якість) залишався видимим */
+            .server.focus .server__name, 
+            .server.focus .server__quality {
+                color: #ffffff !important;
+                text-shadow: 0 0 5px rgba(0,0,0,0.5) !important;
+            }
+
             @keyframes night-pulse { 
-                0% { box-shadow: 0 0 20px rgba(233, 64, 87, 0.3); } 
-                50% { box-shadow: 0 0 30px rgba(242, 113, 33, 0.3); } 
-                100% { box-shadow: 0 0 20px rgba(138, 35, 135, 0.3); } 
+                0% { box-shadow: 0 0 10px rgba(233, 64, 87, 0.5); } 
+                50% { box-shadow: 0 0 20px rgba(242, 113, 33, 0.5); } 
+                100% { box-shadow: 0 0 10px rgba(138, 35, 135, 0.5); } 
             }
-            .card.focus .card__view::after, .card.hover .card__view::after { border: 2px solid #e94057 !important; box-shadow: 0 0 30px rgba(242, 113, 33, 0.5) !important; }
-            .head__action.focus, .head__action.hover { background: linear-gradient(45deg, #8a2387, #f27121) !important; animation: night-pulse 2s infinite !important; }
-            .settings__content, .modal__content { background: rgba(10, 10, 10, 0.95) !important; }
         `;
         document.head.appendChild(style);
     }
