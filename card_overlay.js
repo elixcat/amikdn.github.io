@@ -3331,6 +3331,25 @@
             '.card .card__badge--next-episode,.card__badge--next-episode{display:none!important}';
         document.head.appendChild(style);
 
+// --- ТЕМА DARK NIGHT ---
+        var darkNightStyle = document.getElementById('dark-night-theme');
+        if (darkNightStyle && darkNightStyle.parentNode) darkNightStyle.parentNode.removeChild(darkNightStyle);
+
+        darkNightStyle = document.createElement('style');
+        darkNightStyle.id = 'dark-night-theme';
+        darkNightStyle.type = 'text/css';
+        darkNightStyle.textContent = `
+            body { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%) !important; color: #ffffff !important; }
+            .menu__item.focus, .menu__item.traverse, .menu__item.hover, .settings-folder.focus, .settings-param.focus, .selectbox-item.focus, .full-start__button.focus, .full-descr__tag.focus, .player-panel .button.focus { background: linear-gradient(to right, #8a2387, #e94057, #f27121) !important; color: #fff !important; box-shadow: 0 0 30px rgba(233, 64, 87, 0.3) !important; animation: night-pulse 2s infinite !important; }
+            @keyframes night-pulse { 0% { box-shadow: 0 0 20px rgba(233, 64, 87, 0.3); } 50% { box-shadow: 0 0 30px rgba(242, 113, 33, 0.3); } 100% { box-shadow: 0 0 20px rgba(138, 35, 135, 0.3); } }
+            .card.focus .card__view::after, .card.hover .card__view::after { border: 2px solid #e94057 !important; box-shadow: 0 0 30px rgba(242, 113, 33, 0.5) !important; }
+            .head__action.focus, .head__action.hover { background: linear-gradient(45deg, #8a2387, #f27121) !important; animation: night-pulse 2s infinite !important; }
+            .full-start__background { opacity: 0.8 !important; filter: saturate(1.3) contrast(1.1) !important; }
+            .settings__content, .settings-input__content, .selectbox__content, .modal__content { background: rgba(10, 10, 10, 0.95) !important; border: 1px solid rgba(233, 64, 87, 0.1) !important; box-shadow: 0 0 30px rgba(242, 113, 33, 0.1) !important; }
+        `;
+        document.head.appendChild(darkNightStyle);
+        // --- КІНЕЦЬ ТЕМИ ---
+
         applyRatingScale();
         applyBadgeStyle();
         if (isTriggerOn('lampa_rating_icon', true)) $('body').attr('data-lampa-icon-on', '1'); else $('body').removeAttr('data-lampa-icon-on');
@@ -3503,6 +3522,8 @@
         var style = document.getElementById('card-overlay-style');
         if (style && style.parentNode) style.parentNode.removeChild(style);
 
+        var dnStyle = document.getElementById('dark-night-theme');
+        if (dnStyle && dnStyle.parentNode) dnStyle.parentNode.removeChild(dnStyle);
         window.__card_overlay_initialized__ = false;
     }
 
