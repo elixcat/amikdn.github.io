@@ -620,7 +620,7 @@ function searchRezka(queries, index, titles, year, cacheKey) {
           return;
         }
 
-        if (index + 1 < queries.length) searchRezka(queries, index + 1, titles, year, cacheKey);
+        if (index + 1 < queries.length) searchRezka(queries, index + 1, titles, cacheKey);
         else fail('Ошибка поиска на Rezka (' + reason + ')');
       }
     );
