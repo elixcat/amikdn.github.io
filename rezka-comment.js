@@ -537,95 +537,81 @@
     );
   }
 
-function pickBest(items, titles, year) {
+// 1. Покращений пошук з автоматичним перемиканням мови
+  async function searchRezka(name, ye, isOriginal = true, originalName = '') {
+    try {
+      let { host, cookie, proxy } = getSettings();
+      // Пошук без року
+      let path = host + "/search/?do=search&subaction=search&q=" + encodeURIComponent(name);
+      let searchUrl = proxy;
+      if (cookie) searchUrl += "param/Cookie=" + encodeURIComponent(cookie) + "/";
+      searchUrl += path;
+
+      console.log('[RezkaComment] Поиск (' + (isOriginal ? 'EN' : 'RU') + '):', name);
+
+      let fc = await fetch(searchUrl, {
+        method: "GET",
+        headers: { "Content-Type": "text/html" }
+      }).then((r) => r.text());
+
+      let dom = new DOMParser().parseFromString(fc, "text/html");
+      let items = dom.querySelectorAll(".b-content__inline_item");
+
+      // Використовуємо наш покращений відбір
+      let best = items.length ? pickBest(items, name, ye) : null;
+
+      if (!best) {
+        // Якщо не знайшли за англійською назвою, пробуємо за російською
+        if (isOriginal && originalName) {
+            console.log('[RezkaComment] Не найдено EN, пробуем RU:', originalName);
+            return await searchRezka(originalName, ye, false);
+        }
+        
+        console.warn('[RezkaComment] Не найдено ни на EN, ни на RU');
+        Lampa.Noty.show('Фильм не найден на Rezka');
+        Lampa.Loading.stop();
+        return;
+      }
+
+      let itemUrl = best.querySelector(".b-content__inline_item-link")?.getAttribute("href") || "";
+      await comment_rezka(best.dataset.id, itemUrl);
+    } catch (e) {
+      fail('Ошибка поиска: ' + e.message);
+    }
+  }
+
+  // 2. Суворий відбір (повертає тільки якщо назва дійсно схожа)
+  function pickBest(items, targetName, year) {
     var best = null;
-    var best_score = -1;
+    var maxScore = 0;
+    var targetNorm = normalizeTitle(targetName);
 
     for (var i = 0; i < items.length; i++) {
       var link = items[i].querySelector('.b-content__inline_item-link');
       if (!link) continue;
 
-      // Отримуємо повний текст назви з сайту
       var nameText = (link.innerText || link.textContent || '').trim();
-      var nameLower = nameText.toLowerCase();
+      var nameNorm = normalizeTitle(nameText);
       var score = 0;
 
-      // Логіка: шукаємо будь-який з наших варіантів назви у тексті, що віддала Rezka
-      for (var j = 0; j < titles.length; j++) {
-        if (!titles[j]) continue;
-        
-        // title[j] - це нормалізована англійська/російська назва
-        // Якщо назва з сайту містить хоч частину нашого запиту
-        if (nameLower.indexOf(titles[j]) !== -1 || titles[j].indexOf(nameLower) !== -1) {
-          score += 20; 
-          break;
-        }
+      // Якщо назва хоча б частково збігається
+      if (nameNorm.indexOf(targetNorm) !== -1 || targetNorm.indexOf(nameNorm) !== -1) {
+        score = 20; 
+      } else {
+        continue; // Якщо назва не та — пропускаємо
       }
 
-      // Якщо рік вказаний, і він є в тексті - це бонус
+      // Бонус за рік
       if (year && nameText.indexOf(String(year)) !== -1) {
-        score += 5;
+        score += 10;
       }
 
-      if (score > best_score) {
-        best_score = score;
+      if (score > maxScore) {
+        maxScore = score;
         best = items[i];
       }
     }
-
-    // Якщо набрали хоч щось (навіть 10 балів за частковий збіг), беремо
-    return best_score >= 10 ? best : null;
-  }
-
-  function searchRezka(queries, index, titles, year, cacheKey) {
-    if (index >= queries.length) {
-      fail('Фильм или сериал не найден на Rezka');
-      return;
-    }
-
-    var query = queries[index];
-    // Лог для перевірки, що саме шукаємо
-    console.log('[Rezka Comment] Поиск:', query);
-
-    var target =
-      getSettings().host +
-      '/search/?do=search&subaction=search&q=' +
-      encodeURIComponent(query);
-
-    request(
-      buildUrl(target),
-      function (html) {
-        var dom = parseHTML(html);
-        var items = dom.querySelectorAll('.b-content__inline_item');
-        
-        // Лог кількості знайденого
-        console.log('[Rezka Comment] Найдено элементов:', items.length);
-
-        var best = items.length ? pickBest(items, titles, year) : null;
-
-        if (!best) {
-          // Якщо не знайшли, пробуємо наступний запит (наступну мову/назву)
-          searchRezka(queries, index + 1, titles, year, cacheKey);
-          return;
-        }
-
-        var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
-        var nameText = link ? (link.innerText || link.textContent || '').trim() : 'Rezka Result';
-        var href = link ? link.getAttribute('href') || '' : '';
-        
-        loadComments(best.getAttribute('data-id'), href, nameText, cacheKey);
-      },
-      function (reason) {
-        console.log('[Rezka Comment] Ошибка поиска:', reason);
-        if (reason === 'challenge') {
-          fail('Защита от ботов на Rezka. Укажите Cookie.');
-          return;
-        }
-
-        if (index + 1 < queries.length) searchRezka(queries, index + 1, titles, year, cacheKey);
-        else fail('Ошибка поиска на Rezka (' + reason + ')');
-      }
-    );
+    return best;
   }
 
   function openComments(movie, method) {
