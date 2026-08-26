@@ -642,15 +642,25 @@
 
     var queries = [];
     var titles = [];
+    
+    // Сортуємо: спочатку оригінальні (англійські), потім локальні
     var raw = [movie.original_title, movie.original_name, movie.title, movie.name];
     var i;
 
-    for (i = 0; i < raw.length; i++) {
+    // Спочатку додаємо оригінальні назви
+    for (i = 0; i < 2; i++) {
       if (!raw[i]) continue;
-
       var clean = cleanTitle(raw[i]);
       var norm = normalizeTitle(raw[i]);
-
+      if (clean && queries.indexOf(clean) === -1) queries.push(clean);
+      if (norm && titles.indexOf(norm) === -1) titles.push(norm);
+    }
+    
+    // Потім додаємо локалізовані назви
+    for (i = 2; i < raw.length; i++) {
+      if (!raw[i]) continue;
+      var clean = cleanTitle(raw[i]);
+      var norm = normalizeTitle(raw[i]);
       if (clean && queries.indexOf(clean) === -1) queries.push(clean);
       if (norm && titles.indexOf(norm) === -1) titles.push(norm);
     }
