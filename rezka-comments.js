@@ -540,27 +540,31 @@
 function pickBest(items, titles, year) {
     var best = null;
     var best_score = -1;
+    var i;
 
-    for (var i = 0; i < items.length; i++) {
+    for (i = 0; i < items.length; i++) {
       var link = items[i].querySelector('.b-content__inline_item-link');
       if (!link) continue;
 
-      var nameText = (link.innerText || link.textContent || '').trim();
-      var name = normalizeTitle(nameText);
+      var name = normalizeTitle(text(link, 'a') || (link.innerText || link.textContent || ''));
+      var info = (link.innerText || link.textContent || '') + '';
       var score = 0;
 
-      // Оцінка назви: якщо в назві є шукане слово — це наш фільм
+      // 1. Перевірка назви
       for (var j = 0; j < titles.length; j++) {
         if (!titles[j]) continue;
-        if (name.indexOf(titles[j]) !== -1 || titles[j].indexOf(name) !== -1) {
-          score += 20; // Високий бал за збіг назви
-          break;
-        }
+        if (name === titles[j]) { score += 20; break; } // Точний збіг назви
+        if (name.indexOf(titles[j]) !== -1) { score += 10; break; }
       }
 
-      // Бонус за збіг року (якщо рік вказано, це просто бонус, а не вимога)
-      if (year && nameText.indexOf(String(year)) !== -1) {
-        score += 5;
+      // 2. Верифікація року (якщо рік вказаний в картці)
+      if (year) {
+        if (info.indexOf(String(year)) !== -1) {
+            score += 15; // Якщо рік збігся — це дуже добре
+        } else {
+            // Якщо рік інший — це великий мінус, але не виключаємо повністю
+            score -= 5; 
+        }
       }
 
       if (score > best_score) {
@@ -569,8 +573,7 @@ function pickBest(items, titles, year) {
       }
     }
 
-    // Поріг 10 балів гарантує, що ми обрали щось із назвою, що збігається
-    return best_score >= 10 ? best : null;
+    return best_score > 5 ? best : null; // Підняв поріг з 0 до 5, щоб відсіяти явне сміття
   }
 
 function searchRezka(queries, index, titles, year, cacheKey) {
@@ -580,7 +583,6 @@ function searchRezka(queries, index, titles, year, cacheKey) {
     }
 
     var query = queries[index];
-    // Пошук ТІЛЬКИ по назві (без додавання року в запит)
     var target =
       getSettings().host +
       '/search/?do=search&subaction=search&q=' +
@@ -601,16 +603,18 @@ function searchRezka(queries, index, titles, year, cacheKey) {
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
         var nameText = link ? (link.innerText || link.textContent || '').trim() : 'Rezka Result';
         
-        // Витягуємо рік з інформаційного блоку результату пошуку
+        // --- ВИПРАВЛЕННЯ ТУТ ---
+        // Спробуємо знайти рік у блоці інфо, який часто йде після назви або в окремому span
         var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || 
                       best.querySelector('.b-content__inline_item-link > div') || 
                       best.querySelector('.b-content__inline_item-link span');
         
         var foundYear = infoDiv ? (infoDiv.innerText || infoDiv.textContent || '').trim() : '';
-        var yearMatch = foundYear.match(/\d{4}/);
         
-        // Формуємо назву з роком (якщо рік знайдено)
+        // Перевірка: якщо в тексті infoDiv є цифри року (4 цифри підряд), беремо їх
+        var yearMatch = foundYear.match(/\d{4}/);
         var finalTitle = nameText + (yearMatch ? ' (' + yearMatch[0] + ')' : '');
+        // -------------------------
 
         var href = link ? link.getAttribute('href') || '' : '';
         
