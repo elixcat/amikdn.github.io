@@ -580,7 +580,7 @@
       } else {
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
         
-        // 1. Витягуємо рік з сайту (шукаємо цифри року в блоці info)
+        // 1. Витягуємо рік
         var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || 
                       best.querySelector('.b-content__inline_item-link > div') || 
                       best.querySelector('.b-content__inline_item-link span');
@@ -588,15 +588,10 @@
         var yearMatch = foundYear.match(/\d{4}/);
         var yearStr = (yearMatch ? yearMatch[0] : (year ? year : ''));
         
-        // 2. Формуємо красивий заголовок: Англійська / Російська (Рік)
-        var enName = targetNames[0]; // Оригінальна назва
-        var ruName = targetNames.length > 1 ? targetNames[1] : ""; // Локалізована назва
+        // 2. Використовуємо ТІЛЬКИ локалізовану назву (другий елемент з targetNames, якщо є)
+        // Якщо раптом локалізованої немає, беремо першу доступну
+        var nameText = targetNames.length > 1 ? targetNames[1] : targetNames[0];
         
-        var nameText = enName;
-        // Додаємо російську назву, якщо вона відрізняється від англійської
-        if (ruName && ruName.toLowerCase() !== enName.toLowerCase()) {
-            nameText += ' / ' + ruName;
-        }
         // Додаємо рік у дужках
         if (yearStr) {
             nameText += ' (' + yearStr + ')';
@@ -608,7 +603,7 @@
     }, function(reason) {
       searchRezka(queries, index + 1, targetNames, year, cacheKey);
     });
-  }
+      }
 
   function openComments(movie, method) {
     if (busy) return;
