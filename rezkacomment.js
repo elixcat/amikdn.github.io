@@ -537,11 +537,10 @@
     );
   }
 
-  function pickBest(items, titles, year) {
+function pickBest(items, titles, year) {
     var best = null;
     var best_score = -1;
     var i;
-    var j;
 
     for (i = 0; i < items.length; i++) {
       var link = items[i].querySelector('.b-content__inline_item-link');
@@ -551,21 +550,22 @@
       var info = (link.innerText || link.textContent || '') + '';
       var score = 0;
 
-      for (j = 0; j < titles.length; j++) {
+      // 1. Перевірка назви
+      for (var j = 0; j < titles.length; j++) {
         if (!titles[j]) continue;
-        if (name === titles[j]) {
-          score += 10;
-          break;
-        }
-        if (name.indexOf(titles[j]) !== -1 || titles[j].indexOf(name) !== -1) {
-          score += 4;
-          break;
-        }
+        if (name === titles[j]) { score += 20; break; } // Точний збіг назви
+        if (name.indexOf(titles[j]) !== -1) { score += 10; break; }
       }
 
-      if (year && info.indexOf(String(year)) !== -1) score += 5;
-
-      score += (items.length - i) / (items.length * 10);
+      // 2. Верифікація року (якщо рік вказаний в картці)
+      if (year) {
+        if (info.indexOf(String(year)) !== -1) {
+            score += 15; // Якщо рік збігся — це дуже добре
+        } else {
+            // Якщо рік інший — це великий мінус, але не виключаємо повністю
+            score -= 5; 
+        }
+      }
 
       if (score > best_score) {
         best_score = score;
@@ -573,26 +573,28 @@
       }
     }
 
-    return best_score > 0 ? best : null;
+    return best_score > 5 ? best : null; // Підняв поріг з 0 до 5, щоб відсіяти явне сміття
   }
 
-  function searchRezka(queries, index, titles, year, cacheKey) {
+function searchRezka(queries, index, titles, year, cacheKey) {
     if (index >= queries.length) {
       fail('Фильм или сериал не найден на Rezka');
       return;
     }
 
     var query = queries[index];
+    // ЗМІНЕНО: прибрали "+ (year ? ' ' + year : '')"
     var target =
       getSettings().host +
       '/search/?do=search&subaction=search&q=' +
-      encodeURIComponent(query + (year ? ' ' + year : ''));
+      encodeURIComponent(query); 
 
     request(
       buildUrl(target),
       function (html) {
         var dom = parseHTML(html);
         var items = dom.querySelectorAll('.b-content__inline_item');
+        // Передаємо рік сюди, щоб pickBest його перевірив
         var best = items.length ? pickBest(items, titles, year) : null;
 
         if (!best) {
@@ -601,10 +603,18 @@
         }
 
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
-        var name = link ? (link.innerText || link.textContent || '').trim() : '';
+        
+        // ЗМІНЕНО: намагаємось витягнути рік з картки для відображення
+        var nameText = link ? (link.innerText || link.textContent || '').trim() : '';
+        var info = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') ? 
+                   best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div').innerText : '';
+        
         var href = link ? link.getAttribute('href') || '' : '';
+        
+        // Додаємо рік до назви, якщо вдалося його дістати з тексту картки
+        var finalTitle = nameText + (info ? ' (' + info + ')' : '');
 
-        loadComments(best.getAttribute('data-id'), href, name, cacheKey);
+        loadComments(best.getAttribute('data-id'), href, finalTitle, cacheKey);
       },
       function (reason) {
         if (reason === 'challenge') {
