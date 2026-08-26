@@ -573,7 +573,7 @@ function pickBest(items, titles, year) {
       }
     }
 
-    return best_score > 5 ? best : null; // Підняв поріг з 0 до 5, щоб відсіяти явне сміття
+    return best_score > 3 ? best : null; // Підняв поріг з 0 до 5, щоб відсіяти явне сміття
   }
 
 function searchRezka(queries, index, titles, year, cacheKey) {
