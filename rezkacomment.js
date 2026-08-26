@@ -583,18 +583,16 @@ function searchRezka(queries, index, titles, year, cacheKey) {
     }
 
     var query = queries[index];
-    // ЗМІНЕНО: прибрали "+ (year ? ' ' + year : '')"
     var target =
       getSettings().host +
       '/search/?do=search&subaction=search&q=' +
-      encodeURIComponent(query); 
+      encodeURIComponent(query);
 
     request(
       buildUrl(target),
       function (html) {
         var dom = parseHTML(html);
         var items = dom.querySelectorAll('.b-content__inline_item');
-        // Передаємо рік сюди, щоб pickBest його перевірив
         var best = items.length ? pickBest(items, titles, year) : null;
 
         if (!best) {
@@ -603,17 +601,23 @@ function searchRezka(queries, index, titles, year, cacheKey) {
         }
 
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
+        var nameText = link ? (link.innerText || link.textContent || '').trim() : 'Rezka Result';
         
-        // ЗМІНЕНО: намагаємось витягнути рік з картки для відображення
-        var nameText = link ? (link.innerText || link.textContent || '').trim() : '';
-        var info = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') ? 
-                   best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div').innerText : '';
+        // --- ВИПРАВЛЕННЯ ТУТ ---
+        // Спробуємо знайти рік у блоці інфо, який часто йде після назви або в окремому span
+        var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || 
+                      best.querySelector('.b-content__inline_item-link > div') || 
+                      best.querySelector('.b-content__inline_item-link span');
         
+        var foundYear = infoDiv ? (infoDiv.innerText || infoDiv.textContent || '').trim() : '';
+        
+        // Перевірка: якщо в тексті infoDiv є цифри року (4 цифри підряд), беремо їх
+        var yearMatch = foundYear.match(/\d{4}/);
+        var finalTitle = nameText + (yearMatch ? ' (' + yearMatch[0] + ')' : '');
+        // -------------------------
+
         var href = link ? link.getAttribute('href') || '' : '';
         
-        // Додаємо рік до назви, якщо вдалося його дістати з тексту картки
-        var finalTitle = nameText + (info ? ' (' + info + ')' : '');
-
         loadComments(best.getAttribute('data-id'), href, finalTitle, cacheKey);
       },
       function (reason) {
