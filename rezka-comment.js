@@ -1,5 +1,3 @@
---- START OF FILE rezka-comment (супер).js ---
-
 (function () {
   'use strict';
 
