@@ -562,7 +562,6 @@
     return maxScore >= 10 ? best : null;
   }
 
-  // Замініть функцію searchRezka на цю версію
   function searchRezka(queries, index, targetNames, year, cacheKey) {
     if (index >= queries.length) {
       fail('Фильм не найден на Rezka');
@@ -581,16 +580,27 @@
       } else {
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
         
-        // --- ВИТЯГУЄМО РІК З REZKA ДЛЯ ЗАГОЛОВКА ---
+        // 1. Витягуємо рік з сайту (шукаємо цифри року в блоці info)
         var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || 
                       best.querySelector('.b-content__inline_item-link > div') || 
                       best.querySelector('.b-content__inline_item-link span');
         var foundYear = infoDiv ? (infoDiv.innerText || infoDiv.textContent || '').trim() : '';
         var yearMatch = foundYear.match(/\d{4}/);
+        var yearStr = (yearMatch ? yearMatch[0] : (year ? year : ''));
         
-        // Беремо назву з TMDB (яка прийшла в queries[index]), 
-        // або якщо вона не дуже зрозуміла - беремо назву з сайту, і додаємо рік
-        var nameText = queries[index] + (yearMatch ? ' (' + yearMatch[0] + ')' : (year ? ' (' + year + ')' : ''));
+        // 2. Формуємо красивий заголовок: Англійська / Російська (Рік)
+        var enName = targetNames[0]; // Оригінальна назва
+        var ruName = targetNames.length > 1 ? targetNames[1] : ""; // Локалізована назва
+        
+        var nameText = enName;
+        // Додаємо російську назву, якщо вона відрізняється від англійської
+        if (ruName && ruName.toLowerCase() !== enName.toLowerCase()) {
+            nameText += ' / ' + ruName;
+        }
+        // Додаємо рік у дужках
+        if (yearStr) {
+            nameText += ' (' + yearStr + ')';
+        }
         
         var href = link ? link.getAttribute('href') : '';
         loadComments(best.getAttribute('data-id'), href, nameText, cacheKey);
