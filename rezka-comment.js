@@ -562,6 +562,7 @@
     return maxScore >= 10 ? best : null;
   }
 
+  // Замініть функцію searchRezka на цю версію
   function searchRezka(queries, index, targetNames, year, cacheKey) {
     if (index >= queries.length) {
       fail('Фильм не найден на Rezka');
@@ -579,12 +580,23 @@
         searchRezka(queries, index + 1, targetNames, year, cacheKey);
       } else {
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
-        var nameText = link ? (link.innerText || link.textContent || '').trim() : 'Rezka';
-        loadComments(best.getAttribute('data-id'), link ? link.getAttribute('href') : '', nameText, cacheKey);
+        
+        // --- ВИТЯГУЄМО РІК З REZKA ДЛЯ ЗАГОЛОВКА ---
+        var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || 
+                      best.querySelector('.b-content__inline_item-link > div') || 
+                      best.querySelector('.b-content__inline_item-link span');
+        var foundYear = infoDiv ? (infoDiv.innerText || infoDiv.textContent || '').trim() : '';
+        var yearMatch = foundYear.match(/\d{4}/);
+        
+        // Беремо назву з TMDB (яка прийшла в queries[index]), 
+        // або якщо вона не дуже зрозуміла - беремо назву з сайту, і додаємо рік
+        var nameText = queries[index] + (yearMatch ? ' (' + yearMatch[0] + ')' : (year ? ' (' + year + ')' : ''));
+        
+        var href = link ? link.getAttribute('href') : '';
+        loadComments(best.getAttribute('data-id'), href, nameText, cacheKey);
       }
     }, function(reason) {
-      if (reason === 'challenge') fail('Защита от ботов. Укажите Cookie.');
-      else searchRezka(queries, index + 1, targetNames, year, cacheKey);
+      searchRezka(queries, index + 1, targetNames, year, cacheKey);
     });
   }
 
