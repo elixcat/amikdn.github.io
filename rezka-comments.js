@@ -540,31 +540,31 @@
 function pickBest(items, titles, year) {
     var best = null;
     var best_score = -1;
-    var i;
 
-    for (i = 0; i < items.length; i++) {
+    for (var i = 0; i < items.length; i++) {
       var link = items[i].querySelector('.b-content__inline_item-link');
       if (!link) continue;
 
-      var name = normalizeTitle(text(link, 'a') || (link.innerText || link.textContent || ''));
-      var info = (link.innerText || link.textContent || '') + '';
+      // Отримуємо повний текст назви з сайту
+      var nameText = (link.innerText || link.textContent || '').trim();
+      var nameLower = nameText.toLowerCase();
       var score = 0;
 
-      // 1. Перевірка назви
+      // Логіка: шукаємо будь-який з наших варіантів назви у тексті, що віддала Rezka
       for (var j = 0; j < titles.length; j++) {
         if (!titles[j]) continue;
-        if (name === titles[j]) { score += 20; break; } // Точний збіг назви
-        if (name.indexOf(titles[j]) !== -1) { score += 10; break; }
+        
+        // title[j] - це нормалізована англійська/російська назва
+        // Якщо назва з сайту містить хоч частину нашого запиту
+        if (nameLower.indexOf(titles[j]) !== -1 || titles[j].indexOf(nameLower) !== -1) {
+          score += 20; 
+          break;
+        }
       }
 
-      // 2. Верифікація року (якщо рік вказаний в картці)
-      if (year) {
-        if (info.indexOf(String(year)) !== -1) {
-            score += 15; // Якщо рік збігся — це дуже добре
-        } else {
-            // Якщо рік інший — це великий мінус, але не виключаємо повністю
-            score -= 5; 
-        }
+      // Якщо рік вказаний, і він є в тексті - це бонус
+      if (year && nameText.indexOf(String(year)) !== -1) {
+        score += 5;
       }
 
       if (score > best_score) {
@@ -573,16 +573,20 @@ function pickBest(items, titles, year) {
       }
     }
 
-    return best_score > 5 ? best : null; // Підняв поріг з 0 до 5, щоб відсіяти явне сміття
+    // Якщо набрали хоч щось (навіть 10 балів за частковий збіг), беремо
+    return best_score >= 10 ? best : null;
   }
 
-function searchRezka(queries, index, titles, year, cacheKey) {
+  function searchRezka(queries, index, titles, year, cacheKey) {
     if (index >= queries.length) {
       fail('Фильм или сериал не найден на Rezka');
       return;
     }
 
     var query = queries[index];
+    // Лог для перевірки, що саме шукаємо
+    console.log('[Rezka Comment] Поиск:', query);
+
     var target =
       getSettings().host +
       '/search/?do=search&subaction=search&q=' +
@@ -593,36 +597,28 @@ function searchRezka(queries, index, titles, year, cacheKey) {
       function (html) {
         var dom = parseHTML(html);
         var items = dom.querySelectorAll('.b-content__inline_item');
+        
+        // Лог кількості знайденого
+        console.log('[Rezka Comment] Найдено элементов:', items.length);
+
         var best = items.length ? pickBest(items, titles, year) : null;
 
         if (!best) {
+          // Якщо не знайшли, пробуємо наступний запит (наступну мову/назву)
           searchRezka(queries, index + 1, titles, year, cacheKey);
           return;
         }
 
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
         var nameText = link ? (link.innerText || link.textContent || '').trim() : 'Rezka Result';
-        
-        // --- ВИПРАВЛЕННЯ ТУТ ---
-        // Спробуємо знайти рік у блоці інфо, який часто йде після назви або в окремому span
-        var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || 
-                      best.querySelector('.b-content__inline_item-link > div') || 
-                      best.querySelector('.b-content__inline_item-link span');
-        
-        var foundYear = infoDiv ? (infoDiv.innerText || infoDiv.textContent || '').trim() : '';
-        
-        // Перевірка: якщо в тексті infoDiv є цифри року (4 цифри підряд), беремо їх
-        var yearMatch = foundYear.match(/\d{4}/);
-        var finalTitle = nameText + (yearMatch ? ' (' + yearMatch[0] + ')' : '');
-        // -------------------------
-
         var href = link ? link.getAttribute('href') || '' : '';
         
-        loadComments(best.getAttribute('data-id'), href, finalTitle, cacheKey);
+        loadComments(best.getAttribute('data-id'), href, nameText, cacheKey);
       },
       function (reason) {
+        console.log('[Rezka Comment] Ошибка поиска:', reason);
         if (reason === 'challenge') {
-          fail('Защита от ботов на Rezka. Укажите Cookie в настройках плагина.');
+          fail('Защита от ботов на Rezka. Укажите Cookie.');
           return;
         }
 
