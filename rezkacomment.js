@@ -540,31 +540,27 @@
 function pickBest(items, titles, year) {
     var best = null;
     var best_score = -1;
-    var i;
 
-    for (i = 0; i < items.length; i++) {
+    for (var i = 0; i < items.length; i++) {
       var link = items[i].querySelector('.b-content__inline_item-link');
       if (!link) continue;
 
-      var name = normalizeTitle(text(link, 'a') || (link.innerText || link.textContent || ''));
-      var info = (link.innerText || link.textContent || '') + '';
+      var nameText = (link.innerText || link.textContent || '').trim();
+      var name = normalizeTitle(nameText);
       var score = 0;
 
-      // 1. Перевірка назви
+      // Оцінка назви: якщо в назві є шукане слово — це наш фільм
       for (var j = 0; j < titles.length; j++) {
         if (!titles[j]) continue;
-        if (name === titles[j]) { score += 20; break; } // Точний збіг назви
-        if (name.indexOf(titles[j]) !== -1) { score += 10; break; }
+        if (name.indexOf(titles[j]) !== -1 || titles[j].indexOf(name) !== -1) {
+          score += 20; // Високий бал за збіг назви
+          break;
+        }
       }
 
-      // 2. Верифікація року (якщо рік вказаний в картці)
-      if (year) {
-        if (info.indexOf(String(year)) !== -1) {
-            score += 15; // Якщо рік збігся — це дуже добре
-        } else {
-            // Якщо рік інший — це великий мінус, але не виключаємо повністю
-            score -= 5; 
-        }
+      // Бонус за збіг року (якщо рік вказано, це просто бонус, а не вимога)
+      if (year && nameText.indexOf(String(year)) !== -1) {
+        score += 5;
       }
 
       if (score > best_score) {
@@ -573,7 +569,8 @@ function pickBest(items, titles, year) {
       }
     }
 
-    return best_score > 3 ? best : null; // Підняв поріг з 0 до 5, щоб відсіяти явне сміття
+    // Поріг 10 балів гарантує, що ми обрали щось із назвою, що збігається
+    return best_score >= 10 ? best : null;
   }
 
 function searchRezka(queries, index, titles, year, cacheKey) {
