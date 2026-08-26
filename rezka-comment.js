@@ -403,7 +403,9 @@
 
     var body = $('<div class="rc-wrap"></div>');
 
-    body.html(html);
+    // Створюємо окремий заголовок, щоб він не екранувався як текст
+    var header = $('<div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; text-align: center; color: #fff;">' + title + '</div>');
+    body.append(header).append(html);
 
     function reveal(scope) {
       if (!scope || !scope.length) return false;
@@ -468,7 +470,7 @@
     modal_open = true;
 
     Lampa.Modal.open({
-      title: title || Lampa.Lang.translate('title_comments'),
+      title: Lampa.Lang.translate('title_comments'),
       html: body,
       size: 'large',
       mask: true,
