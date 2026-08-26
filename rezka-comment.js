@@ -403,9 +403,7 @@
 
     var body = $('<div class="rc-wrap"></div>');
 
-    // Створюємо окремий заголовок, щоб він не екранувався як текст
-    var header = $('<div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; text-align: center; color: #fff;">' + title + '</div>');
-    body.append(header).append(html);
+    body.html(html);
 
     function reveal(scope) {
       if (!scope || !scope.length) return false;
@@ -470,7 +468,7 @@
     modal_open = true;
 
     Lampa.Modal.open({
-      title: Lampa.Lang.translate('title_comments'),
+      title: title || Lampa.Lang.translate('title_comments'),
       html: body,
       size: 'large',
       mask: true,
@@ -582,6 +580,7 @@
       } else {
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
         
+        // 1. Витягуємо рік з сайту (шукаємо цифри року в блоці info)
         var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || 
                       best.querySelector('.b-content__inline_item-link > div') || 
                       best.querySelector('.b-content__inline_item-link span');
@@ -589,14 +588,16 @@
         var yearMatch = foundYear.match(/\d{4}/);
         var yearStr = (yearMatch ? yearMatch[0] : (year ? year : ''));
         
-        var enName = targetNames[0];
-        var ruName = targetNames.length > 1 ? targetNames[1] : "";
+        // 2. Формуємо красивий заголовок: Англійська / Російська (Рік)
+        var enName = targetNames[0]; // Оригінальна назва
+        var ruName = targetNames.length > 1 ? targetNames[1] : ""; // Локалізована назва
         
-        // Використовуємо <br> для перенесення рядка
         var nameText = enName;
+        // Додаємо російську назву, якщо вона відрізняється від англійської
         if (ruName && ruName.toLowerCase() !== enName.toLowerCase()) {
-            nameText += '<br>' + ruName;
+            nameText += ' / ' + ruName;
         }
+        // Додаємо рік у дужках
         if (yearStr) {
             nameText += ' (' + yearStr + ')';
         }
@@ -704,27 +705,30 @@
     render.append(btn);
   }
 
-function getEnTitle(movie, method) {
-      Lampa.Api.sources.tmdb.get(
-          (method === 'tv' ? 'tv' : 'movie') + '/' + movie.id + '?append_to_response=translations', 
-          {}, 
-          function (data) {
-              const tr = data.translations?.translations || [];
-              const enTranslation = tr.find((t) => t.iso_639_1 === 'en');
-              const enTitle = enTranslation?.data?.title || enTranslation?.data?.name || movie.original_title || movie.original_name;
-              
-              var year = movie.release_date ? String(movie.release_date).slice(0, 4) : (movie.first_air_date ? String(movie.first_air_date).slice(0, 4) : '');
-              var cacheKey = (method === 'tv' ? 'tv_' : 'mv_') + movie.id;
-              
-              // Запускаємо пошук
-              var queries = [enTitle, movie.title, movie.original_title].filter(Boolean);
-              searchRezka(queries, 0, queries, year, cacheKey);
-          }, 
-          function () {
-              // Якщо TMDB не дав результату - старий метод
-              openComments(movie, method);
-          }
-      );
+async function getEnTitle(movie, method) {
+      try {
+          const tmdbType = (method === 'tv' ? 'tv' : 'movie');
+          const data = await new Promise((res, rej) => 
+              Lampa.Api.sources.tmdb.get(`${tmdbType}/${movie.id}?append_to_response=translations`, {}, res, rej)
+          );
+          
+          const tr = data.translations?.translations || [];
+          const enTranslation = tr.find((t) => t.iso_639_1 === 'en');
+          const enTitle = enTranslation?.data?.title || enTranslation?.data?.name || movie.original_title || movie.original_name;
+          
+          console.log('[RezkaComment] Назва з TMDB:', enTitle);
+          
+          var year = movie.release_date ? String(movie.release_date).slice(0, 4) : (movie.first_air_date ? String(movie.first_air_date).slice(0, 4) : '');
+          var cacheKey = (method === 'tv' ? 'tv_' : 'mv_') + movie.id;
+          
+          // Робимо список для пошуку: англійська назва + російська
+          var queries = [enTitle, movie.title, movie.original_title].filter(Boolean);
+          searchRezka(queries, 0, queries, year, cacheKey);
+      } catch (e) {
+          console.error('[RezkaComment] TMDB error', e);
+          // Якщо TMDB не дав результату, просто шукаємо тим, що є (старий метод)
+          openComments(movie, method);
+      }
   }
 
   function startPlugin() {
@@ -759,4 +763,3 @@ function getEnTitle(movie, method) {
 
   if (!window[PLUGIN_FLAG]) startPlugin();
 })();
-
