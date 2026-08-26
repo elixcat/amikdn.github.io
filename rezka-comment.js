@@ -13,7 +13,7 @@
   var CACHE_LIMIT = 40;
   var REQUEST_TIMEOUT = 15000;
 
-  var DEFAULT_HOST = 'https://rezka.si';
+  var DEFAULT_HOST = 'https://rezka.ag';
   var DEFAULT_PROXY = 'https://worker-patient-dream-26d8.bdvburik.workers.dev:8443/';
 
   var network = null;
