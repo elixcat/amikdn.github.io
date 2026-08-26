@@ -583,6 +583,7 @@ function searchRezka(queries, index, titles, year, cacheKey) {
     }
 
     var query = queries[index];
+    // Пошук ТІЛЬКИ по назві (без додавання року в запит)
     var target =
       getSettings().host +
       '/search/?do=search&subaction=search&q=' +
@@ -603,18 +604,16 @@ function searchRezka(queries, index, titles, year, cacheKey) {
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
         var nameText = link ? (link.innerText || link.textContent || '').trim() : 'Rezka Result';
         
-        // --- ВИПРАВЛЕННЯ ТУТ ---
-        // Спробуємо знайти рік у блоці інфо, який часто йде після назви або в окремому span
+        // Витягуємо рік з інформаційного блоку результату пошуку
         var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || 
                       best.querySelector('.b-content__inline_item-link > div') || 
                       best.querySelector('.b-content__inline_item-link span');
         
         var foundYear = infoDiv ? (infoDiv.innerText || infoDiv.textContent || '').trim() : '';
-        
-        // Перевірка: якщо в тексті infoDiv є цифри року (4 цифри підряд), беремо їх
         var yearMatch = foundYear.match(/\d{4}/);
+        
+        // Формуємо назву з роком (якщо рік знайдено)
         var finalTitle = nameText + (yearMatch ? ' (' + yearMatch[0] + ')' : '');
-        // -------------------------
 
         var href = link ? link.getAttribute('href') || '' : '';
         
