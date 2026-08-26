@@ -676,10 +676,37 @@
     var btn = $(Lampa.Lang.translate(BUTTON_HTML));
 
     btn.on('hover:enter', function () {
-      openComments(movie, method);
+      // Викликаємо нову функцію, яка спочатку дізнається англійську назву
+      getEnTitle(movie, method);
     });
 
     render.append(btn);
+  }
+
+async function getEnTitle(movie, method) {
+      try {
+          const tmdbType = (method === 'tv' ? 'tv' : 'movie');
+          const data = await new Promise((res, rej) => 
+              Lampa.Api.sources.tmdb.get(`${tmdbType}/${movie.id}?append_to_response=translations`, {}, res, rej)
+          );
+          
+          const tr = data.translations?.translations || [];
+          const enTranslation = tr.find((t) => t.iso_639_1 === 'en');
+          const enTitle = enTranslation?.data?.title || enTranslation?.data?.name || movie.original_title || movie.original_name;
+          
+          console.log('[RezkaComment] Назва з TMDB:', enTitle);
+          
+          var year = movie.release_date ? String(movie.release_date).slice(0, 4) : (movie.first_air_date ? String(movie.first_air_date).slice(0, 4) : '');
+          var cacheKey = (method === 'tv' ? 'tv_' : 'mv_') + movie.id;
+          
+          // Робимо список для пошуку: англійська назва + російська
+          var queries = [enTitle, movie.title, movie.original_title].filter(Boolean);
+          searchRezka(queries, 0, queries, year, cacheKey);
+      } catch (e) {
+          console.error('[RezkaComment] TMDB error', e);
+          // Якщо TMDB не дав результату, просто шукаємо тим, що є (старий метод)
+          openComments(movie, method);
+      }
   }
 
   function startPlugin() {
