@@ -1,3 +1,5 @@
+--- START OF FILE rezka-comment (супер).js ---
+
 (function () {
   'use strict';
 
@@ -499,12 +501,12 @@
         try {
           json = typeof raw === 'string' ? JSON.parse(raw) : raw;
         } catch (e) {
-          fail('Не удалось разобрать ответ Rezka');
+          fail(Lampa.Lang.translate('rc_error_parse'));
           return;
         }
 
         if (!json || !json.comments) {
-          fail('Комментарии отсутствуют');
+          fail(Lampa.Lang.translate('rc_error_empty'));
           return;
         }
 
@@ -512,7 +514,7 @@
         var root = dom.querySelector('ol.comments-tree-list, .comments-tree-list');
 
         if (!root) {
-          fail('Комментарии отсутствуют');
+          fail(Lampa.Lang.translate('rc_error_empty'));
           return;
         }
 
@@ -522,7 +524,7 @@
         var html = treeHtml(root, 0);
 
         if (!html) {
-          fail('Комментарии отсутствуют');
+          fail(Lampa.Lang.translate('rc_error_empty'));
           return;
         }
 
@@ -531,13 +533,12 @@
         openModal(html, title);
       },
       function (reason) {
-        if (reason === 'challenge') fail('Защита от ботов на Rezka. Укажите Cookie в настройках плагина.');
-        else fail('Не удалось загрузить комментарии (' + reason + ')');
+        if (reason === 'challenge') fail(Lampa.Lang.translate('rc_error_bot'));
+        else fail(Lampa.Lang.translate('rc_error_load') + ' (' + reason + ')');
       }
     );
   }
 
-// --- НОВА ЛОГІКА ПОШУКУ ---
   function pickBest(items, targetNames, year) {
     var best = null;
     var maxScore = 0;
@@ -564,7 +565,7 @@
 
   function searchRezka(queries, index, targetNames, year, cacheKey) {
     if (index >= queries.length) {
-      fail('Фильм не найден на Rezka');
+      fail(Lampa.Lang.translate('rc_error_not_found'));
       return;
     }
 
@@ -580,7 +581,6 @@
       } else {
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
         
-        // 1. Витягуємо рік
         var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || 
                       best.querySelector('.b-content__inline_item-link > div') || 
                       best.querySelector('.b-content__inline_item-link span');
@@ -588,11 +588,8 @@
         var yearMatch = foundYear.match(/\d{4}/);
         var yearStr = (yearMatch ? yearMatch[0] : (year ? year : ''));
         
-        // 2. Використовуємо ТІЛЬКИ локалізовану назву (другий елемент з targetNames, якщо є)
-        // Якщо раптом локалізованої немає, беремо першу доступну
         var nameText = targetNames.length > 1 ? targetNames[1] : targetNames[0];
         
-        // Додаємо рік у дужках
         if (yearStr) {
             nameText += ' (' + yearStr + ')';
         }
@@ -625,7 +622,6 @@
     var queries = [];
     var namesForMatching = []; 
     
-    // Пріоритет: спочатку оригінальні (англійські), потім назви мовою сайту
     [movie.original_title, movie.original_name, movie.title, movie.name].forEach(function(n) {
         if(n && queries.indexOf(n) === -1) {
             queries.push(n);
@@ -641,7 +637,7 @@
 
     Lampa.SettingsApi.addComponent({
       component: COMPONENT,
-      name: 'Rezka Comments',
+      name: Lampa.Lang.translate('rc_settings_name'),
       icon:
         '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
         '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
@@ -650,28 +646,28 @@
     Lampa.SettingsApi.addParam({
       component: COMPONENT,
       param: { name: 'rezka_comment_host', type: 'input', values: '', placeholder: DEFAULT_HOST, 'default': DEFAULT_HOST },
-      field: { name: 'Зеркало hdrezka', description: 'Адрес зеркала, например https://hdrezka.me' }
+      field: { name: Lampa.Lang.translate('rc_settings_host'), description: Lampa.Lang.translate('rc_settings_host_desc') }
     });
 
     Lampa.SettingsApi.addParam({
       component: COMPONENT,
       param: { name: 'rezka_comment_cookie', type: 'input', values: '', placeholder: 'вставьте cookie', 'default': '' },
-      field: { name: 'Cookie авторизации', description: 'Cookie из браузера для обхода защиты (Anubis / PHPSESSID)' }
+      field: { name: Lampa.Lang.translate('rc_settings_cookie'), description: Lampa.Lang.translate('rc_settings_cookie_desc') }
     });
 
     Lampa.SettingsApi.addParam({
       component: COMPONENT,
       param: { name: 'rezka_comment_proxy', type: 'input', values: '', placeholder: DEFAULT_PROXY, 'default': DEFAULT_PROXY },
-      field: { name: 'CORS прокси', description: 'Адрес прокси, слэш на конце добавится сам' }
+      field: { name: Lampa.Lang.translate('rc_settings_proxy'), description: Lampa.Lang.translate('rc_settings_proxy_desc') }
     });
 
     Lampa.SettingsApi.addParam({
       component: COMPONENT,
       param: { name: 'rezka_comment_clear', type: 'button' },
-      field: { name: 'Очистить кеш комментариев', description: 'Комментарии хранятся сутки' },
+      field: { name: Lampa.Lang.translate('rc_settings_clear'), description: Lampa.Lang.translate('rc_settings_clear_desc') },
       onChange: function () {
         Lampa.Storage.set(CACHE_KEY, {});
-        Lampa.Noty.show('Кеш комментариев очищен');
+        Lampa.Noty.show(Lampa.Lang.translate('rc_cache_cleared'));
       }
     });
   }
@@ -693,14 +689,13 @@
     var btn = $(Lampa.Lang.translate(BUTTON_HTML));
 
     btn.on('hover:enter', function () {
-      // Викликаємо нову функцію, яка спочатку дізнається англійську назву
       getEnTitle(movie, method);
     });
 
     render.append(btn);
   }
 
-async function getEnTitle(movie, method) {
+  async function getEnTitle(movie, method) {
       try {
           const tmdbType = (method === 'tv' ? 'tv' : 'movie');
           const data = await new Promise((res, rej) => 
@@ -711,17 +706,12 @@ async function getEnTitle(movie, method) {
           const enTranslation = tr.find((t) => t.iso_639_1 === 'en');
           const enTitle = enTranslation?.data?.title || enTranslation?.data?.name || movie.original_title || movie.original_name;
           
-          console.log('[RezkaComment] Назва з TMDB:', enTitle);
-          
           var year = movie.release_date ? String(movie.release_date).slice(0, 4) : (movie.first_air_date ? String(movie.first_air_date).slice(0, 4) : '');
           var cacheKey = (method === 'tv' ? 'tv_' : 'mv_') + movie.id;
           
-          // Робимо список для пошуку: англійська назва + російська
           var queries = [enTitle, movie.title, movie.original_title].filter(Boolean);
           searchRezka(queries, 0, queries, year, cacheKey);
       } catch (e) {
-          console.error('[RezkaComment] TMDB error', e);
-          // Якщо TMDB не дав результату, просто шукаємо тим, що є (старий метод)
           openComments(movie, method);
       }
   }
@@ -732,9 +722,67 @@ async function getEnTitle(movie, method) {
     Lampa.Lang.add({
       title_comments: {
         ru: 'Комментарии',
-        uk: 'Коментарі',
-        en: 'Comments',
-        zh: '评论'
+        uk: 'Коментарі'
+      },
+      rc_settings_name: {
+        ru: 'Rezka Комментарии',
+        uk: 'Rezka Коментарі'
+      },
+      rc_settings_host: {
+        ru: 'Зеркало hdrezka',
+        uk: 'Дзеркало hdrezka'
+      },
+      rc_settings_host_desc: {
+        ru: 'Адрес зеркала, например https://hdrezka.me',
+        uk: 'Адреса дзеркала, наприклад https://hdrezka.me'
+      },
+      rc_settings_cookie: {
+        ru: 'Cookie авторизации',
+        uk: 'Cookie авторизації'
+      },
+      rc_settings_cookie_desc: {
+        ru: 'Cookie из браузера для обхода защиты (Anubis / PHPSESSID)',
+        uk: 'Cookie з браузера для обходу захисту (Anubis / PHPSESSID)'
+      },
+      rc_settings_proxy: {
+        ru: 'CORS прокси',
+        uk: 'CORS проксі'
+      },
+      rc_settings_proxy_desc: {
+        ru: 'Адрес прокси, слэш на конце добавится сам',
+        uk: 'Адреса проксі, слеш на кінці додасться сам'
+      },
+      rc_settings_clear: {
+        ru: 'Очистить кеш комментариев',
+        uk: 'Очистити кеш коментарів'
+      },
+      rc_settings_clear_desc: {
+        ru: 'Комментарии хранятся сутки',
+        uk: 'Коментарі зберігаються добу'
+      },
+      rc_cache_cleared: {
+        ru: 'Кеш комментариев очищен',
+        uk: 'Кеш коментарів очищено'
+      },
+      rc_error_bot: {
+        ru: 'Защита от ботов на Rezka. Укажите Cookie в настройках плагина.',
+        uk: 'Захист від ботів на Rezka. Вкажіть Cookie у налаштуваннях плагіна.'
+      },
+      rc_error_parse: {
+        ru: 'Не удалось разобрать ответ Rezka',
+        uk: 'Не вдалося розібрати відповідь Rezka'
+      },
+      rc_error_empty: {
+        ru: 'Комментарии отсутствуют',
+        uk: 'Коментарі відсутні'
+      },
+      rc_error_load: {
+        ru: 'Не удалось загрузить комментарии',
+        uk: 'Не вдалося завантажити коментарі'
+      },
+      rc_error_not_found: {
+        ru: 'Фильм не найден на Rezka',
+        uk: 'Фільм не знайдено на Rezka'
       }
     });
 
