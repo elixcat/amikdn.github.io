@@ -549,28 +549,26 @@ function pickBest(items, titles, year) {
       var name = normalizeTitle(nameText);
       var score = 0;
 
-      // Оцінка назви: якщо в назві є шукане слово — це наш фільм
+      // Найважливіше: дивимось, чи є хоч якесь слово з нашого запиту в назві на сайті
       for (var j = 0; j < titles.length; j++) {
         if (!titles[j]) continue;
+        
+        // Перевіряємо, чи є хоч мінімальний збіг назви
         if (name.indexOf(titles[j]) !== -1 || titles[j].indexOf(name) !== -1) {
-          score += 20; // Високий бал за збіг назви
+          score += 20; 
           break;
         }
       }
 
-      // Бонус за збіг року (якщо рік вказано, це просто бонус, а не вимога)
-      if (year && nameText.indexOf(String(year)) !== -1) {
-        score += 5;
-      }
-
+      // Якщо ми знайшли хоч якийсь збіг назви (20 балів) - це вже кандидат №1
       if (score > best_score) {
         best_score = score;
         best = items[i];
       }
     }
 
-    // Поріг 10 балів гарантує, що ми обрали щось із назвою, що збігається
-    return best_score >= 10 ? best : null;
+    // Тепер поріг 1 - беремо будь-що, що набрало бали за назву
+    return best_score >= 1 ? best : null;
   }
 
 function searchRezka(queries, index, titles, year, cacheKey) {
