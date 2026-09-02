@@ -108,8 +108,9 @@
                         
                         var clean_details = details_html.replace(/(\d{1,2}:\d{2})\s?●\s?/, '').replace(/(\d{1,2}:\d{2})/, '');
                         
-                        var row1 = '<div style="display: block; margin-bottom: 8px;">' + time_html + '<span style="font-size:' + (infoScale * 100) + '%; vertical-align: middle;">' + clean_details + '</span></div>';
-                        var row2 = '<div style="display: block; font-size:' + (infoScale * 100) + '%;">' + head_html + '</div>';
+                        // Використовуємо flex-basis: 100% для примусового перенесення на новий рядок
+                        var row1 = '<div style="display: flex; align-items: center; flex-basis: 100%; margin-bottom: 8px;">' + time_html + '<span style="font-size:' + (infoScale * 100) + '%;">' + clean_details + '</span></div>';
+                        var row2 = '<div style="display: flex; flex-basis: 100%; font-size:' + (infoScale * 100) + '%;">' + head_html + '</div>';
                         
                         details.html(row1 + row2);
                         head.remove();
