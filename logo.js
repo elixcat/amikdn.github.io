@@ -86,8 +86,10 @@
                         if (head.length && details.length && details.find(".logo-moved-head").length === 0) {
                             var head_html = head.html().trim();
                             if (head_html) {
-                                var moved = '<div class="logo-moved-head" style="margin-left:0.6em; display:block; width:100%; clear:both; margin-top:0.5em;">' + head_html + '</div>';
-                                details.append(moved);
+                                var details_html = details.html();
+                                var moved_head = '<div class="logo-moved-head" style="margin-left:0.6em; display:block; width:100%; clear:both; margin-bottom:0.5em;">' + head_html + '</div>';
+                                
+                                details.html(moved_head + details_html);
                                 head.remove();
                             }
                         }
