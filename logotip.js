@@ -91,8 +91,8 @@
                     render.find(".full-start-new__tagline").remove();
 
                     if (Lampa.Storage.get("logo_hide_year", true)) {
-                        // Точна заміна: шукаємо кому і одразу 19 або 20, вставляємо пробіл
-                        var head_html = (head.html() || "").replace(/19/g, " 19").replace(/20/g, " 20");
+                        // Використовуємо Lookahead для додавання пробілу після коми перед 19 або 20
+                        var head_html = (head.html() || "").replace(/,(?=[12][09])/g, ", ");
                         
                         var details_html = details.html() || "";
                         var time_match = details_html.match(/(\d{1,2}:\d{2})/);
