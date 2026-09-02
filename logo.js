@@ -86,9 +86,8 @@
                         if (head.length && details.length && details.find(".logo-moved-head").length === 0) {
                             var head_html = head.html().trim();
                             if (head_html) {
-                                var separator = details.children().length > 0 ? '<span class="full-start-new__split logo-moved-separator">●</span><br>' : '<br>';
-                                var moved = '<span class="logo-moved-head" style="margin-left:0.6em;">' + head_html + '</span>';
-                                details.append(separator + moved);
+                                var moved = '<div class="logo-moved-head" style="margin-left:0.6em; display:block; width:100%; clear:both; margin-top:0.5em;">' + head_html + '</div>';
+                                details.append(moved);
                                 head.remove();
                             }
                         }
