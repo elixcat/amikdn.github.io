@@ -1,7 +1,6 @@
 (function () {
     'use strict';
 
-    // CSS для плашки
     var style = document.createElement('style');
     style.innerHTML = `
         .time-badge {
@@ -47,13 +46,13 @@
     Lampa.SettingsApi.addParam({
         component: "interface",
         param: { name: "logo_info_scale", type: "select", values: getScaleValues(), default: "1" },
-        field: { name: "Масштаб інформації (рік, жанри)", description: "Масштаб для тексту." }
+        field: { name: "Масштаб інформації (рік, жанри)", description: "Масштаб для всього, крім часу." }
     });
 
     Lampa.SettingsApi.addParam({
         component: "interface",
         param: { name: "logo_time_scale", type: "select", values: getScaleValues(), default: "1" },
-        field: { name: "Масштаб часу перегляду", description: "Масштаб тільки для плашки часу." }
+        field: { name: "Масштаб часу перегляду", description: "Окремий масштаб тільки для часу." }
     });
 
     if (window.logoplugin) return;
@@ -88,7 +87,6 @@
             var url = TMDB_API + "/" + type + "/" + movie.id +"/images?api_key=" + Lampa.TMDB.key() +"&include_image_language=" + lang + ",en,null";
 
             $.get(url, function (response) {
-                // ... (логіка отримання логотипу)
                 var logo_path = null;
                 if (response.logos && response.logos.length > 0) {
                     for (var i = 0; i < response.logos.length; i++) { if (response.logos[i].iso_639_1 == lang) { logo_path = response.logos[i].file_path; break; } }
@@ -105,21 +103,14 @@
                         var head_html = head.html() || "";
                         var details_html = details.html() || "";
                         
-                        // 1. Витягуємо час
                         var time_match = details_html.match(/(\d{1,2}:\d{2})/);
                         var time_html = time_match ? '<span class="time-badge" style="font-size:' + (timeScale * 100) + '%;">' + time_match[0] + '</span>' : '';
                         
-                        // 2. Видаляємо час із загального тексту, щоб він не дублювався
                         var clean_details = details_html.replace(/(\d{1,2}:\d{2})\s?●\s?/, '').replace(/(\d{1,2}:\d{2})/, '');
                         
-                        // 3. Формуємо рядки
-                        // Рядок 1: Час (плашка) + Жанри
-                        var row1 = '<div style="margin-bottom:0.5em;">' + time_html + '<span style="font-size:' + (infoScale * 100) + '%;">' + clean_details + '</span></div>';
+                        var row1 = '<div style="display: block; margin-bottom: 8px;">' + time_html + '<span style="font-size:' + (infoScale * 100) + '%; vertical-align: middle;">' + clean_details + '</span></div>';
+                        var row2 = '<div style="display: block; font-size:' + (infoScale * 100) + '%;">' + head_html + '</div>';
                         
-                        // Рядок 2: Рік, Країна (колишній head)
-                        var row2 = '<div style="font-size:' + (infoScale * 100) + '%;">' + head_html + '</div>';
-                        
-                        // 4. Оновлюємо
                         details.html(row1 + row2);
                         head.remove();
                     }
