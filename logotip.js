@@ -104,13 +104,14 @@
                         var details_html = details.html() || "";
                         
                         var time_match = details_html.match(/(\d{1,2}:\d{2})/);
-                        var time_html = time_match ? '<span class="time-badge" style="font-size:' + (timeScale * 100) + '%;">' + time_match[0] + '</span>' : '';
+                        // Додано &nbsp; після плашки для відступу
+                        var time_html = time_match ? '<span class="time-badge" style="font-size:' + (timeScale * 100) + '%;">' + time_match[0] + '</span>&nbsp;' : '';
                         
                         var clean_details = details_html.replace(/(\d{1,2}:\d{2})\s?●\s?/, '').replace(/(\d{1,2}:\d{2})/, '');
                         
-                        // Використовуємо flex-basis: 100% для примусового перенесення на новий рядок
                         var row1 = '<div style="display: flex; align-items: center; flex-basis: 100%; margin-bottom: 8px;">' + time_html + '<span style="font-size:' + (infoScale * 100) + '%;">' + clean_details + '</span></div>';
-                        var row2 = '<div style="display: flex; flex-basis: 100%; font-size:' + (infoScale * 100) + '%;">' + head_html + '</div>';
+                        // Додано &nbsp; перед head_html (рік та країна)
+                        var row2 = '<div style="display: flex; flex-basis: 100%; font-size:' + (infoScale * 100) + '%;">&nbsp;' + head_html + '</div>';
                         
                         details.html(row1 + row2);
                         head.remove();
