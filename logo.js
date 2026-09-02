@@ -22,7 +22,7 @@
     Lampa.SettingsApi.addParam({
         component: "interface",
         param: { name: "logo_info_scale", type: "select", values: { "1": "100%", "1.1": "110%", "1.2": "120%", "1.3": "130%", "1.4": "140%", "1.5": "150%", "1.6": "160%", "1.7": "170%", "1.8": "180%", "1.9": "190%", "2": "200%", "2.1": "210%", "2.2": "220%", "2.3": "230%", "2.4": "240%", "2.5": "250%" }, default: "1" },
-        field: { name: "Масштаб інформації про фільм", description: "Змінює розмір шрифту інформації про рік, країну, жанр та тривалість перегляду." }
+        field: { name: "Масштаб інформації про фільм", description: "Змінює розмір шрифту інформації про рік, країну, жанр та тривалість" }
     });
 
     if (window.logoplugin) return;
@@ -96,8 +96,13 @@
                                 var details_html = details.html();
                                 var scalePercent = (infoScale * 100);
                                 var moved_head = '<div class="logo-moved-head" style="margin-left:0.6em; display:block; width:100%; clear:both; margin-bottom:0.5em; font-size:' + scalePercent + '%;">' + head_html + '</div>';
-                                var scaled_details = details_html.replace(/(<span|<div)/g, function(match) {
-                                    return match + ' style="font-size:' + scalePercent + '%;"';
+                                
+                                var scaled_details = details_html.replace(/(<span|<div)([^>]*?)>/g, function(match, tag, attrs) {
+                                    return tag + ' style="font-size:' + scalePercent + '%;"' + attrs + '>';
+                                });
+                                
+                                scaled_details = scaled_details.replace(/(\d+\s*(?:хв|хвилин|хвилини|хвилина|м(?:ин)?|мин))/gi, function(match) {
+                                    return '<span style="background-color:#3498DB; color:white; padding:0.3em 0.6em; border-radius:0.5em; font-size:' + scalePercent + '%;">' + match + '</span>';
                                 });
                                 
                                 details.html(moved_head + scaled_details);
