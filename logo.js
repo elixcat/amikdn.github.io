@@ -12,7 +12,7 @@
 
     Lampa.SettingsApi.addParam({
         component: "interface",
-        param: { name: "logo_size", type: "select", values: { w300: "w300", w500: "w500", w780: "w780", original: "Оригинал" }, default: "w500" },
+        param: { name: "logo_size", type: "select", values: { w300: "w300", w500: "w500", w780: "w780", original: { ru: "Оригинал", uk: "Оригінал" } }, default: "w500" },
         field: { 
             name: { ru: "Размер логотипа", uk: "Розмір логотипу" },
             description: { ru: "Разрешение загружаемого изображения", uk: "Дозвіл завантажуваного зображення" }
