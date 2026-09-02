@@ -58,15 +58,6 @@
     if (window.logoplugin) return;
     window.logoplugin = true;
 
-    Lampa.Storage.listener.follow('change', function (e) {
-        if (['logo_glav', 'logo_size', 'logo_hide_year', 'logo_info_scale', 'logo_time_scale'].includes(e.param)) {
-            var activity = Lampa.Activity.active();
-            if (activity && activity.component === 'full') {
-                setTimeout(function () { activity.reload(); }, 300);
-            }
-        }
-    });
-
     Lampa.Listener.follow('full', function (a) {
         if (a.type == 'complite' && "1" != Lampa.Storage.get("logo_glav")) {
             var movie = a.data.movie;
@@ -100,17 +91,21 @@
                     render.find(".full-start-new__tagline").remove();
 
                     if (Lampa.Storage.get("logo_hide_year", true)) {
-                        var head_html = head.html() || "";
-                        var details_html = details.html() || "";
+                        // 1. Форматуємо Head (рік, країна) -> додаємо пробіл після ком
+                        var head_html = (head.html() || "").replace(/,(?!\s)/g, ", ");
                         
+                        // 2. Очищуємо та форматуємо Details (час, жанри)
+                        var details_html = details.html() || "";
                         var time_match = details_html.match(/(\d{1,2}:\d{2})/);
-                        // Додано &nbsp; після плашки для відступу
                         var time_html = time_match ? '<span class="time-badge" style="font-size:' + (timeScale * 100) + '%;">' + time_match[0] + '</span>&nbsp;' : '';
                         
-                        var clean_details = details_html.replace(/(\d{1,2}:\d{2})\s?●\s?/, '').replace(/(\d{1,2}:\d{2})/, '');
+                        // Видаляємо час і додаємо пробіли навколо ●
+                        var clean_details = details_html
+                            .replace(/(\d{1,2}:\d{2})\s?●\s?/, '')
+                            .replace(/(\d{1,2}:\d{2})/, '')
+                            .replace(/●/g, ' &nbsp; ● &nbsp; ');
                         
                         var row1 = '<div style="display: flex; align-items: center; flex-basis: 100%; margin-bottom: 8px;">' + time_html + '<span style="font-size:' + (infoScale * 100) + '%;">' + clean_details + '</span></div>';
-                        // Додано &nbsp; перед head_html (рік та країна)
                         var row2 = '<div style="display: flex; flex-basis: 100%; font-size:' + (infoScale * 100) + '%;">&nbsp;' + head_html + '</div>';
                         
                         details.html(row1 + row2);
