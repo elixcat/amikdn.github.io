@@ -91,16 +91,13 @@
                     render.find(".full-start-new__tagline").remove();
 
                     if (Lampa.Storage.get("logo_hide_year", true)) {
-                        // 1. Форматуємо Head (рік, країна) -> додаємо пробіл перед 19 або 20
-                        // Регулярка /(?<!\s)(19|20)\d{2}/ знаходить рік, перед яким немає пробілу
-                        var head_html = (head.html() || "").replace(/(?<!\s)(19|20)\d{2}/g, " $1$2");
+                        // Точна заміна: шукаємо кому і одразу 19 або 20, вставляємо пробіл
+                        var head_html = (head.html() || "").replace(/,19/g, ", 19").replace(/,20/g, ", 20");
                         
-                        // 2. Очищуємо та форматуємо Details (час, жанри)
                         var details_html = details.html() || "";
                         var time_match = details_html.match(/(\d{1,2}:\d{2})/);
                         var time_html = time_match ? '<span class="time-badge" style="font-size:' + (timeScale * 100) + '%;">' + time_match[0] + '</span>&nbsp;' : '';
                         
-                        // Видаляємо час і додаємо пробіли навколо ●
                         var clean_details = details_html
                             .replace(/(\d{1,2}:\d{2})\s?●\s?/, '')
                             .replace(/(\d{1,2}:\d{2})/, '')
