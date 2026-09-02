@@ -3,7 +3,7 @@
 
     Lampa.SettingsApi.addParam({
         component: "interface",
-        param: { name: "logo_glav", type: "select", values: { 1: "Скрыть", 0: "Отображать" }, default: "0" },
+        param: { name: "logo_glav", type: "select", values: { 1: { ru: "Скрыть", uk: "Приховати" }, 0: { ru: "Отображать", uk: "Відображати" } }, default: "0" },
         field: { 
             name: { ru: "Логотипы вместо названий", uk: "Логотипи замість назв" },
             description: { ru: "Отображает логотипы фильмов вместо текста", uk: "Відображає логотипи фільмів замість тексту" }
@@ -12,7 +12,7 @@
 
     Lampa.SettingsApi.addParam({
         component: "interface",
-        param: { name: "logo_size", type: "select", values: { w300: "w300", w500: "w500", w780: "w780", original: { ru: "Оригинал", uk: "Оригінал" } }, default: "w500" },
+        param: { name: "logo_size", type: "select", values: { w300: { ru: "w300", uk: "w300" }, w500: { ru: "w500", uk: "w500" }, w780: { ru: "w780", uk: "w780" }, original: { ru: "Оригинал", uk: "Оригінал" } }, default: "w500" },
         field: { 
             name: { ru: "Размер логотипа", uk: "Розмір логотипу" },
             description: { ru: "Разрешение загружаемого изображения", uk: "Дозвіл завантажуваного зображення" }
