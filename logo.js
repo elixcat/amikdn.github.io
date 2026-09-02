@@ -3,38 +3,26 @@
 
     Lampa.SettingsApi.addParam({
         component: "interface",
-        param: { name: "logo_glav", type: "select", values: { 1: "Скрыть", 0: "Отображать" }, default: "0" },
-        field: { 
-            name: { ru: "Логотипы вместо названий", uk: "Логотипи замість назв" },
-            description: { ru: "Отображает логотипы фильмов вместо текста", uk: "Відображає логотипи фільмів замість тексту" }
-        }
+        param: { name: "logo_glav", type: "select", values: { 1: "Приховати", 0: "Відображати" }, default: "0" },
+        field: { name: "Логотипи замість назв", description: "Відображає логотипи фільмів замість тексту" }
     });
 
     Lampa.SettingsApi.addParam({
         component: "interface",
-        param: { name: "logo_size", type: "select", values: { w300: "w300", w500: "w500", w780: "w780", original: "Оригинал" }, default: "w500" },
-        field: { 
-            name: { ru: "Размер логотипа", uk: "Розмір логотипу" },
-            description: { ru: "Разрешение загружаемого изображения", uk: "Дозвіл завантажуваного зображення" }
-        }
+        param: { name: "logo_size", type: "select", values: { w300: "w300", w500: "w500", w780: "w780", original: "Оригінал" }, default: "w500" },
+        field: { name: "Розмір логотипу", description: "Дозвіл завантажуваного зображення" }
     });
 
     Lampa.SettingsApi.addParam({
         component: "interface",
         param: { name: "logo_hide_year", type: "trigger", default: true },
-        field: { 
-            name: { ru: "Скрывать год и страну над логотипом", uk: "Приховувати рік та країну над логотипом" },
-            description: { ru: "Переносит год выпуска и страну под логотип", uk: "Переносить рік випуску та країну під логотип" }
-        }
+        field: { name: "Приховувати рік та країну над логотипом", description: "Переносить рік випуску та країну під логотип" }
     });
 
     Lampa.SettingsApi.addParam({
         component: "interface",
         param: { name: "logo_info_scale", type: "select", values: { "1": "100%", "1.1": "110%", "1.2": "120%", "1.3": "130%", "1.4": "140%", "1.5": "150%", "1.6": "160%", "1.7": "170%", "1.8": "180%", "1.9": "190%", "2": "200%", "2.1": "210%", "2.2": "220%", "2.3": "230%", "2.4": "240%", "2.5": "250%" }, default: "1" },
-        field: { 
-            name: { ru: "Масштаб инфо о фильме", uk: "Масштаб інфо про фільм" },
-            description: { ru: "Изменяет размер шрифта информации о годе и стране", uk: "Змінює розмір шрифту інформації про рік та країну" }
-        }
+        field: { name: "Масштаб інфо про фільм", description: "Змінює розмір шрифту інформації про рік та країну" }
     });
 
     if (window.logoplugin) return;
