@@ -61,7 +61,6 @@
     Lampa.Listener.follow('full', function (a) {
         if (a.type == 'complite' && "1" != Lampa.Storage.get("logo_glav")) {
             var movie = a.data.movie;
-            var type = movie.name ? 'tv' : 'movie';
             var render = a.object.activity.render();
             var title = render.find(".full-start-new__title");
             var head = render.find(".full-start-new__head");
@@ -69,46 +68,33 @@
 
             if (movie.id == '') return;
 
-            var lang = Lampa.Storage.get("language");
-            var size = Lampa.Storage.get("logo_size", "w500");
             var infoScale = parseFloat(Lampa.Storage.get("logo_info_scale", "1"));
             var timeScale = parseFloat(Lampa.Storage.get("logo_time_scale", "1"));
 
-            var TMDB_API = "http://apitmdb.cubnotrip.top/3";
-            var url = TMDB_API + "/" + type + "/" + movie.id +"/images?api_key=" + Lampa.TMDB.key() +"&include_image_language=" + lang + ",en,null";
-
-            $.get(url, function (response) {
-                var logo_path = null;
-                if (response.logos && response.logos.length > 0) {
-                    for (var i = 0; i < response.logos.length; i++) { if (response.logos[i].iso_639_1 == lang) { logo_path = response.logos[i].file_path; break; } }
-                    if (!logo_path) { for (var i = 0; i < response.logos.length; i++) { if (response.logos[i].iso_639_1 == 'en') { logo_path = response.logos[i].file_path; break; } } }
-                    if (!logo_path) { logo_path = response.logos[0].file_path; }
-                }
+            $.get(Lampa.TMDB.api + "/3/" + (movie.name ? 'tv' : 'movie') + "/" + movie.id +"/images?api_key=" + Lampa.TMDB.key() + "&include_image_language=" + Lampa.Storage.get("language") + ",en,null", function (response) {
+                var logo_path = response.logos && response.logos.length > 0 ? (response.logos.find(l => l.iso_639_1 == Lampa.Storage.get("language")) || response.logos.find(l => l.iso_639_1 == 'en') || response.logos[0]).file_path : null;
 
                 if (logo_path) {
-                    var logo_url = Lampa.TMDB.image("/t/p/" + (size === "original" ? "original" : size) + logo_path.replace(".svg", ".png"));
-                    title.html('<img style="margin-top:5px; max-height:125px;" src="' + logo_url + '"/>');
+                    title.html('<img style="margin-top:5px; max-height:125px;" src="' + Lampa.TMDB.image("/t/p/" + (Lampa.Storage.get("logo_size", "w500") === "original" ? "original" : Lampa.Storage.get("logo_size", "w500")) + logo_path.replace(".svg", ".png")) + '"/>');
                     render.find(".full-start-new__tagline").remove();
 
                     if (Lampa.Storage.get("logo_hide_year", true)) {
-                        // Ремонт пробілів у рядку з роком та країною
-                        var head_html = (head.html() || "")
-                            .replace(/,(?=\d)/g, ", ")
-                            .replace(/(?<!\s)(\d{4})/g, " $1");
-                        
+                        var head_html = head.html() || "";
                         var details_html = details.html() || "";
+                        
+                        // 1. Обробка часу (виносимо в окремий елемент)
                         var time_match = details_html.match(/(\d{1,2}:\d{2})/);
-                        var time_html = time_match ? '<span class="time-badge" style="font-size:' + (timeScale * 100) + '%;">' + time_match[0] + '</span>&nbsp;' : '';
+                        var time_html = time_match ? '<span class="time-badge" style="font-size:' + (timeScale * 100) + '%;">' + time_match[0] + '</span>' : '';
                         
-                        var clean_details = details_html
-                            .replace(/(\d{1,2}:\d{2})\s?●\s?/, '')
-                            .replace(/(\d{1,2}:\d{2})/, '')
-                            .replace(/●/g, ' &nbsp; ● &nbsp; ');
+                        // 2. Обробка жанрів (видаляємо час із загального тексту)
+                        var genre_html = details_html.replace(/(\d{1,2}:\d{2})\s?●\s?/, '').replace(/(\d{1,2}:\d{2})/, '');
+                        // Додаємо пробіли до символу ●
+                        genre_html = genre_html.replace(/●/g, ' &nbsp; ● &nbsp; ');
+
+                        // 3. Формуємо новий вміст через append (зберігаючи стилі Lampa)
+                        details.html('<div style="font-size:' + (infoScale * 100) + '%;">' + time_html + genre_html + '</div>' + 
+                                     '<div style="font-size:' + (infoScale * 100) + '%; margin-top:5px;">' + head_html + '</div>');
                         
-                        var row1 = '<div style="display: flex; align-items: center; flex-basis: 100%; margin-bottom: 8px;">' + time_html + '<span style="font-size:' + (infoScale * 100) + '%;">' + clean_details + '</span></div>';
-                        var row2 = '<div style="display: flex; flex-basis: 100%; font-size:' + (infoScale * 100) + '%;">&nbsp;' + head_html + '</div>';
-                        
-                        details.html(row1 + row2);
                         head.remove();
                     }
                 }
