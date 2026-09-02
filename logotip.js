@@ -91,8 +91,9 @@
                     render.find(".full-start-new__tagline").remove();
 
                     if (Lampa.Storage.get("logo_hide_year", true)) {
-                        // 1. Форматуємо Head (рік, країна) -> додаємо пробіл після ком
-                        var head_html = (head.html() || "").replace(/,(?!\s)/g, ", ");
+                        // 1. Форматуємо Head (рік, країна) -> додаємо пробіл перед 19 або 20
+                        // Регулярка /(?<!\s)(19|20)\d{2}/ знаходить рік, перед яким немає пробілу
+                        var head_html = (head.html() || "").replace(/(?<!\s)(19|20)\d{2}/g, " $1$2");
                         
                         // 2. Очищуємо та форматуємо Details (час, жанри)
                         var details_html = details.html() || "";
