@@ -9,7 +9,7 @@
             color: white;
             padding: 2px 8px;
             border-radius: 6px;
-            margin-right: 8px;
+            margin-right: 1px;
             font-weight: bold;
             display: inline-block;
             vertical-align: middle;
