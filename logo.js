@@ -19,11 +19,17 @@
         field: { name: "Скрывать год и страну над логотипом", description: "Переносит год выпуска и страну под логотип" }
     });
 
+    Lampa.SettingsApi.addParam({
+        component: "interface",
+        param: { name: "logo_info_scale", type: "select", values: { "1": "100%", "1.1": "110%", "1.2": "120%", "1.3": "130%", "1.4": "140%", "1.5": "150%", "1.6": "160%", "1.7": "170%", "1.8": "180%", "1.9": "190%", "2": "200%", "2.1": "210%", "2.2": "220%", "2.3": "230%", "2.4": "240%", "2.5": "250%" }, default: "1" },
+        field: { name: "Размер информации года и страны", description: "Изменяет размер шрифта рядка с годом и страной" }
+    });
+
     if (window.logoplugin) return;
     window.logoplugin = true;
 
     Lampa.Storage.listener.follow('change', function (e) {
-        if (['logo_glav', 'logo_size', 'logo_hide_year'].includes(e.param)) {
+        if (['logo_glav', 'logo_size', 'logo_hide_year', 'logo_info_scale'].includes(e.param)) {
             var activity = Lampa.Activity.active();
             if (activity && activity.component === 'full') {
                 setTimeout(function () {
@@ -48,6 +54,7 @@
 
             var lang = Lampa.Storage.get("language");
             var size = Lampa.Storage.get("logo_size", "w500");
+            var infoScale = Lampa.Storage.get("logo_info_scale", "1");
 
             var TMDB_API = "http://apitmdb.cubnotrip.top/3";
             var url = TMDB_API + "/" + type + "/" + movie.id +"/images?api_key=" + Lampa.TMDB.key() +"&include_image_language=" + lang + ",en,null";
@@ -87,7 +94,7 @@
                             var head_html = head.html().trim();
                             if (head_html) {
                                 var details_html = details.html();
-                                var moved_head = '<div class="logo-moved-head" style="margin-left:0.6em; display:block; width:100%; clear:both; margin-bottom:0.5em;">' + head_html + '</div>';
+                                var moved_head = '<div class="logo-moved-head" style="margin-left:0.6em; display:block; width:100%; clear:both; margin-bottom:0.5em; font-size:' + (infoScale * 100) + '%;">' + head_html + '</div>';
                                 
                                 details.html(moved_head + details_html);
                                 head.remove();
