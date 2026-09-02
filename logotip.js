@@ -124,7 +124,7 @@
                                     return match + ' style="font-size:' + scalePercent + '%;"';
                                 });
                                 
-                                details.html(moved_head + time_html + scaled_details);
+                                details.html(time_html + moved_head + scaled_details);
                                 head.remove();
                             }
                         }
