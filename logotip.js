@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    // CSS для плашки
+    // Додаємо CSS для плашки часу
     var style = document.createElement('style');
     style.innerHTML = `
         .time-badge {
@@ -9,7 +9,6 @@
             color: white;
             padding: 2px 8px;
             border-radius: 6px;
-            margin-right: 8px;
             font-weight: bold;
             display: inline-block;
             vertical-align: middle;
@@ -17,6 +16,7 @@
     `;
     document.head.appendChild(style);
 
+    // Функція для створення значень масштабу
     function getScaleValues() {
         var vals = {};
         for (var i = 5; i <= 20; i++) {
@@ -35,7 +35,7 @@
     Lampa.SettingsApi.addParam({
         component: "interface",
         param: { name: "logo_size", type: "select", values: { w300: "w300", w500: "w500", w780: "w780", original: "Оригінал" }, default: "w500" },
-        field: { name: "Розмір логотипу", description: "Розмір зображення" }
+        field: { name: "Розмір логотипу", description: "Розмір зображення логотипу" }
     });
 
     Lampa.SettingsApi.addParam({
@@ -47,13 +47,13 @@
     Lampa.SettingsApi.addParam({
         component: "interface",
         param: { name: "logo_info_scale", type: "select", values: getScaleValues(), default: "1" },
-        field: { name: "Масштаб інформації (рік, жанри)", description: "Масштаб для тексту." }
+        field: { name: "Масштаб інформації (рік, назва, жанр)", description: "Масштаб для всього, крім часу перегляду." }
     });
 
     Lampa.SettingsApi.addParam({
         component: "interface",
         param: { name: "logo_time_scale", type: "select", values: getScaleValues(), default: "1" },
-        field: { name: "Масштаб часу перегляду", description: "Масштаб тільки для плашки часу." }
+        field: { name: "Масштаб часу перегляду", description: "Окремий масштаб тільки для часу перегляду." }
     });
 
     if (window.logoplugin) return;
@@ -76,6 +76,7 @@
             var title = render.find(".full-start-new__title");
             var head = render.find(".full-start-new__head");
             var details = render.find(".full-start-new__details");
+            var tagline = render.find(".full-start-new__tagline");
 
             if (movie.id == '') return;
 
@@ -88,7 +89,7 @@
             var url = TMDB_API + "/" + type + "/" + movie.id +"/images?api_key=" + Lampa.TMDB.key() +"&include_image_language=" + lang + ",en,null";
 
             $.get(url, function (response) {
-                // ... (логіка отримання логотипу)
+                
                 var logo_path = null;
                 if (response.logos && response.logos.length > 0) {
                     for (var i = 0; i < response.logos.length; i++) { if (response.logos[i].iso_639_1 == lang) { logo_path = response.logos[i].file_path; break; } }
@@ -99,29 +100,34 @@
                 if (logo_path) {
                     var logo_url = Lampa.TMDB.image("/t/p/" + (size === "original" ? "original" : size) + logo_path.replace(".svg", ".png"));
                     title.html('<img style="margin-top:5px; max-height:125px;" src="' + logo_url + '"/>');
-                    render.find(".full-start-new__tagline").remove();
+                    tagline.remove();
 
                     if (Lampa.Storage.get("logo_hide_year", true)) {
-                        var head_html = head.html() || "";
-                        var details_html = details.html() || "";
-                        
-                        // 1. Витягуємо час
-                        var time_match = details_html.match(/(\d{1,2}:\d{2})/);
-                        var time_html = time_match ? '<span class="time-badge" style="font-size:' + (timeScale * 100) + '%;">' + time_match[0] + '</span>' : '';
-                        
-                        // 2. Видаляємо час із загального тексту, щоб він не дублювався
-                        var clean_details = details_html.replace(/(\d{1,2}:\d{2})\s?●\s?/, '').replace(/(\d{1,2}:\d{2})/, '');
-                        
-                        // 3. Формуємо рядки
-                        // Рядок 1: Час (плашка) + Жанри
-                        var row1 = '<div style="margin-bottom:0.5em;">' + time_html + '<span style="font-size:' + (infoScale * 100) + '%;">' + clean_details + '</span></div>';
-                        
-                        // Рядок 2: Рік, Країна (колишній head)
-                        var row2 = '<div style="font-size:' + (infoScale * 100) + '%;">' + head_html + '</div>';
-                        
-                        // 4. Оновлюємо
-                        details.html(row1 + row2);
-                        head.remove();
+                        if (head.length && details.length && details.find(".logo-moved-head").length === 0) {
+                            var head_html = head.html().trim();
+                            if (head_html) {
+                                var raw_details = details.html();
+                                var time_match = raw_details.match(/(\d{1,2}:\d{2})/);
+                                var time_html = '';
+                                
+                                // Вирізаємо час із загального тексту
+                                if (time_match) {
+                                    time_html = '<span class="time-badge" style="font-size:' + (timeScale * 100) + '%;">' + time_match[0] + '</span>';
+                                    raw_details = raw_details.replace(time_match[0], '');
+                                }
+
+                                // Масштабуємо решту контенту
+                                var scalePercent = (infoScale * 100);
+                                var moved_head = '<div class="logo-moved-head" style="margin-left:0.6em; display:block; width:100%; clear:both; margin-bottom:0.5em; font-size:' + scalePercent + '%;">' + head_html + '</div>';
+                                
+                                var scaled_details = raw_details.replace(/(<span|<div)/g, function(match) {
+                                    return match + ' style="font-size:' + scalePercent + '%;"';
+                                });
+                                
+                                details.html(moved_head + time_html + scaled_details);
+                                head.remove();
+                            }
+                        }
                     }
                 }
             });
