@@ -35,7 +35,7 @@
     lampac_sisiname: {
       ru: 'Клубничка',
       en: 'Strawberry',
-      uk: 'Полуничка',
+      uk: 'Полуни',
       zh: '草莓'
     }
   });
