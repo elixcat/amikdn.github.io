@@ -451,24 +451,25 @@
       else {
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
         
-        // Отримання країни
-        var country = '';
+        // Знаходимо блок з інфою (країна та рік)
         var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || best.querySelector('.b-content__inline_item-link > div') || best.querySelector('.b-content__inline_item-link span');
-        if (infoDiv) {
-            var infoText = (infoDiv.innerText || infoDiv.textContent || '').trim();
+        var infoText = infoDiv ? (infoDiv.innerText || infoDiv.textContent || '').trim() : '';
+        
+        // Витягуємо країну (беремо перше слово до коми, якщо вона є)
+        var country = '';
+        if (infoText) {
             var parts = infoText.split(',');
-            if (parts.length > 1) {
-                country = parts[0].trim();
+            if (parts.length > 0) {
+                country = parts[0].trim().replace(/\d{4}/g, '').trim(); // прибираємо рік, якщо він випадково попав
             }
         }
 
-        var foundYear = infoDiv ? (infoDiv.innerText || infoDiv.textContent || '').trim() : '';
-        var yearMatch = foundYear.match(/\d{4}/);
-        var yearStr = (yearMatch ? yearMatch[0] : (year ? year : ''));
+        // Формуємо назву: Назва (Рік) [Країна]
         var nameText = targetNames.length > 1 ? targetNames[1] : targetNames[0];
-        if (yearStr) nameText += ' (' + yearStr + ')';
+        if (year) nameText += ' (' + year + ')';
+        if (country) nameText += ' [' + country + ']';
         
-        loadComments(best.getAttribute('data-id'), link ? link.getAttribute('href') : '', nameText, cacheKey, country);
+        loadComments(best.getAttribute('data-id'), link ? link.getAttribute('href') : '', nameText, cacheKey);
       }
     }, function() { searchRezka(queries, index + 1, targetNames, year, cacheKey); });
   }
