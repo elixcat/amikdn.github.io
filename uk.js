@@ -1127,35 +1127,11 @@
         }
 
         function init() {
-            if (window.lampa_settings && window.lampa_settings.sisi_app) {
-                Api.menu(function(data) {
-                    data.forEach(function(a) {
-                        a.title = Utils.sourceTitle(a.title);
-                        Lampa.Menu.addButton('<img src="./img/icons/settings/more.svg">', a.title, function() {
-                            if (a.playlist_url) {
-                                Lampa.Activity.push({
-                                    url: a.playlist_url,
-                                    title: a.title,
-                                    component: 'sisi_view_' + Defined.use_api,
-                                    page: 1
-                                });
-                            } else {
-                                Lampa.Activity.push({
-                                    url: '',
-                                    title: 'xsena.red',
-                                    component: 'sisi_' + Defined.use_api,
-                                    page: 1
-                                });
-                            }
-                        });
-                    });
-                });
-            } else {
-                add();
-            }
+            add();
             addFilter();
             addSettings();
         }
+        
         if (window.appready) init();
         else {
             Lampa.Listener.follow('app', function(e) {
