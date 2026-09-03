@@ -13,6 +13,7 @@
 
   var DEFAULT_HOST = 'https://rezka.ag';
   var DEFAULT_PROXY = 'https://worker-patient-dream-26d8.bdvburik.workers.dev:8443/';
+  var DEFAULT_TEXT_SCALE = 100;
 
   var network = null;
   var busy = false;
@@ -37,6 +38,7 @@
     var host = String(Lampa.Storage.get('rezka_comment_host', DEFAULT_HOST) || DEFAULT_HOST).trim();
     var cookie = String(Lampa.Storage.get('rezka_comment_cookie', '') || '').trim();
     var proxy = String(Lampa.Storage.get('rezka_comment_proxy', DEFAULT_PROXY) || DEFAULT_PROXY).trim();
+    var textScale = Number(Lampa.Storage.get('rezka_comment_text_scale', DEFAULT_TEXT_SCALE)) || DEFAULT_TEXT_SCALE;
 
     host = host.replace(/\/+$/, '');
     if (host && !/^https?:\/\//i.test(host)) host = 'https://' + host;
@@ -44,7 +46,7 @@
 
     if (proxy && proxy.charAt(proxy.length - 1) !== '/') proxy += '/';
 
-    return { host: host, cookie: cookie, proxy: proxy };
+    return { host: host, cookie: cookie, proxy: proxy, textScale: textScale };
   }
 
   function buildUrl(target, referer) {
@@ -108,7 +110,7 @@
 
   function cleanTitle(str) {
     return String(str || '')
-      .replace(/[\s.,:;’'`!?]+/g, ' ')
+      .replace(/[\s.,:;''`!?]+/g, ' ')
       .trim();
   }
 
@@ -364,6 +366,7 @@
     if (document.getElementById(STYLE_ID)) return;
 
     var style = document.createElement('style');
+    var scale = (getSettings().textScale / 100);
 
     style.id = STYLE_ID;
     style.textContent = [
@@ -377,7 +380,7 @@
       '.rc-head{display:flex;justify-content:space-between;margin-bottom:.3em}',
       '.rc-name{font-weight:600;color:#fff}',
       '.rc-date{opacity:.6;font-size:.8em;padding-left:1em;flex-shrink:0}',
-      '.rc-text{color:#ddd;line-height:1.45;word-wrap:break-word;overflow-wrap:break-word}',
+      '.rc-text{color:#ddd;line-height:1.45;word-wrap:break-word;overflow-wrap:break-word;font-size:' + scale + 'em}',
       '.rc-text img{max-width:100%;height:auto}',
       '.rc-spoiler{display:inline-block;background:#3a3a3a;border:1px solid #555;border-radius:.3em;padding:0 .5em;margin:0 .2em;color:#fff;cursor:pointer}',
       '.rc-spoiler:before{content:"\\1F441 "}',
@@ -630,6 +633,14 @@
     searchRezka(queries, 0, namesForMatching, year, cacheKey);
   }
 
+  function buildScaleValues() {
+    var values = [];
+    for (var i = 100; i <= 200; i += 5) {
+      values.push({ name: i + '%', value: String(i) });
+    }
+    return values;
+  }
+
   function addSettings() {
     if (!Lampa.SettingsApi || typeof Lampa.SettingsApi.addComponent !== 'function') return;
 
@@ -661,6 +672,12 @@
 
     Lampa.SettingsApi.addParam({
       component: COMPONENT,
+      param: { name: 'rezka_comment_text_scale', type: 'select', values: buildScaleValues(), 'default': String(DEFAULT_TEXT_SCALE) },
+      field: { name: Lampa.Lang.translate('rc_settings_text_scale'), description: Lampa.Lang.translate('rc_settings_text_scale_desc') }
+    });
+
+    Lampa.SettingsApi.addParam({
+      component: COMPONENT,
       param: { name: 'rezka_comment_clear', type: 'button' },
       field: { name: Lampa.Lang.translate('rc_settings_clear'), description: Lampa.Lang.translate('rc_settings_clear_desc') },
       onChange: function () {
@@ -675,7 +692,7 @@
     BUTTON_CLASS +
     '">' +
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 356.484 356.484" width="512" height="512">' +
-    '<path d="M293.984 7.23H62.5C28.037 7.23 0 35.268 0 69.731v142.78c0 34.463 28.037 62.5 62.5 62.5l147.443.001 70.581 70.58a12.492 12.492 0 0 0 13.622 2.709 12.496 12.496 0 0 0 7.717-11.547v-62.237c30.759-3.885 54.621-30.211 54.621-62.006V69.731c0-34.463-28.037-62.501-62.5-62.501zm37.5 205.282c0 20.678-16.822 37.5-37.5 37.5h-4.621c-6.903 0-12.5 5.598-12.5 12.5v44.064l-52.903-52.903a12.493 12.493 0 0 0-8.839-3.661H62.5c-20.678 0-37.5-16.822-37.5-37.5V69.732c0-20.678 16.822-37.5 37.5-37.5h231.484c20.678 0 37.5 16.822 37.5 37.5v142.78z" fill="currentColor"/>' +
+    '<path d="M293.984 7.23H62.5C28.037 7.23 0 35.268 0 69.731v142.78c0 34.463 28.037 62.5 62.5 62.5l147.443.001 70.581 70.58a12.492 12.492 0 0 0 13.622 2.709 12.496 12.496 0 0 0 7.717-11.547v-62.237c[...]
     '</svg>' +
     '<span>#{title_comments}</span>' +
     '</div>';
@@ -749,6 +766,14 @@
       rc_settings_proxy_desc: {
         ru: 'Адрес прокси, слэш на конце добавится сам',
         uk: 'Адреса проксі, слеш на кінці додасться сам'
+      },
+      rc_settings_text_scale: {
+        ru: 'Размер текста комментариев',
+        uk: 'Розмір тексту коментарів'
+      },
+      rc_settings_text_scale_desc: {
+        ru: 'Масштаб текста от 100% до 200%',
+        uk: 'Масштаб тексту від 100% до 200%'
       },
       rc_settings_clear: {
         ru: 'Очистить кеш комментариев',
