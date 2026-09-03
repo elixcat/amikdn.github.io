@@ -15,7 +15,7 @@
             ru: 'Клубничка',
             en: 'Strawberry',
             uk: 'Полуничка',
-            zh: '草莓'
+            zh: '草莓 '
         }
     });
     var network = new Lampa.Reguest();
@@ -90,7 +90,6 @@
             });
             client.on("RchClient", function(rchId, url, data, headers, returnHeaders) {
                 var network = new Lampa.Reguest();
-
                 function sendResult(uri, html) {
                     $.ajax({
                         url: 'https://pl.xsena.red/rch/' + uri + '?id=' + rchId,
@@ -106,7 +105,6 @@
                         }
                     });
                 }
-
                 function result(html) {
                     if (Lampa.Arrays.isObject(html) || Lampa.Arrays.isArray(html)) {
                         html = JSON.stringify(html);
@@ -136,13 +134,17 @@
                     }
                 }
                 if (url == 'eval') {
+                    console.log('RCH', url, data);
                     result(eval(data));
                 } else if (url == 'evalrun') {
+                    console.log('RCH', url, data);
                     eval(data);
                 } else if (url == 'ping') {
                     result('pong');
                 } else {
+                    console.log('RCH', url);
                     network["native"](url, result, function(e) {
+                        console.log('RCH', 'result empty, ' + e.status);
                         result('');
                     }, data, {
                         dataType: 'text',
@@ -153,7 +155,14 @@
                 }
             });
             client.on('Connected', function(connectionId) {
+                console.log('RCH', 'ConnectionId: ' + connectionId);
                 window.rch_nws[hostkey].connectionId = connectionId;
+            });
+            client.on('Closed', function() {
+                console.log('RCH', 'Connection closed');
+            });
+            client.on('Error', function(err) {
+                console.log('RCH', 'error:', err);
             });
         });
     };
@@ -165,6 +174,7 @@
         if (client && client.connectionId != null) {
             call();
         } else if (client) {
+            console.log('RCH', 'Reconnecting... ');
             client.reconnect(function() {
                 call();
             });
@@ -194,7 +204,7 @@
     function modal(text) {
         var id = Lampa.Storage.get('sisi_unic_id', '').toLowerCase();
         var controller = Lampa.Controller.enabled().name;
-        var content = "<div class=\"about\"><div>" + (text || 'Добавьте идентификатор устройства в init.conf') + "</div><div class=\"about contacts\"><div><small>unic_id</small><br>" + luid + "</div><div><small>box_mac</small><br>" + id + "</div></div></div>";
+        var content = "<div class=\"about\">\n<div>" + (text || 'Добавьте идентификатор устройства в init.conf') + "</div>\n<div class=\"about contacts\">\n<div>\n<small>unic_id</small><br>\n" + luid + "\n</div>\n\n<div>\n<small>box_mac</small><br>\n" + id + "\n</div>\n</div>\n</div>";
         Lampa.Modal.open({
             title: 'Доступ ограничен',
             html: $(content),
@@ -319,9 +329,13 @@
         clearTimeout(preview_timer);
         if (preview_video) {
             var vid = preview_video.find('video');
+            var pausePromise;
             try {
-                vid.pause();
+                pausePromise = vid.pause()
             } catch (e) {}
+            if (pausePromise !== undefined) {
+                pausePromise.then(function() {}).catch(function(e) {});
+            }
             preview_video.addClass('hide');
             preview_video = false;
         }
@@ -334,6 +348,7 @@
             var video = target.find('video');
             var container = target.find('.sisi-video-preview');
             if (container.length == 0) {
+                video = document.createElement('video');
                 container = document.createElement('div');
                 container.className = 'sisi-video-preview';
                 container.style.position = 'absolute';
@@ -343,14 +358,13 @@
                 container.style.top = '0';
                 container.style.overflow = 'hidden';
                 container.style.borderRadius = '1em';
-                video = document.createElement('video');
                 video.style.position = 'absolute';
                 video.style.width = '100%';
                 video.style.height = '100%';
                 video.style.left = '0';
                 video.style.top = '0';
                 video.style.objectFit = 'cover';
-                container.appendChild(video);
+                container.append(video);
                 target.find('.card-view').append(container);
                 video.addEventListener('ended', function() {
                     container.addClass('hide');
@@ -359,9 +373,13 @@
                 video.load();
             }
             preview_video = $(container);
+            var playPromise;
             try {
-                preview_video.find('video')[0].play();
+                playPromise = preview_video.find('video')[0].play();
             } catch (e) {}
+            if (playPromise !== undefined) {
+                playPromise.then(function() {}).catch(function(e) {});
+            }
             preview_video.removeClass('hide');
         }, 1500);
     }
