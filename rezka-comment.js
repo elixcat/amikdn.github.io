@@ -451,23 +451,34 @@
       else {
         var link = best.querySelector('.b-content__inline_item-link a') || best.querySelector('.b-content__inline_item-link');
         
-        // Знаходимо блок з інфою (країна та рік)
-        var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || best.querySelector('.b-content__inline_item-link > div') || best.querySelector('.b-content__inline_item-link span');
+        // Спробуємо дістати весь блок тексту, що описує фільм у картці
+        var infoDiv = best.querySelector('.b-content__inline_item-cover .b-content__inline_item-link div') || 
+                      best.querySelector('.b-content__inline_item-link > div') || 
+                      best.querySelector('.b-content__inline_item-link span');
+        
+        // Беремо весь текст і очищуємо його
         var infoText = infoDiv ? (infoDiv.innerText || infoDiv.textContent || '').trim() : '';
         
-        // Витягуємо країну (беремо перше слово до коми, якщо вона є)
+        // Зазвичай рядок виглядає як "США, 2024" або "США, 2024, Детективи"
         var country = '';
         if (infoText) {
+            // Розбиваємо за комою, беремо першу частину
             var parts = infoText.split(',');
             if (parts.length > 0) {
-                country = parts[0].trim().replace(/\d{4}/g, '').trim(); // прибираємо рік, якщо він випадково попав
+                // Якщо перша частина - це рік (цифри), шукаємо далі
+                if (/^\d{4}$/.test(parts[0].trim()) && parts.length > 1) {
+                    country = parts[1].trim();
+                } else {
+                    country = parts[0].trim();
+                }
             }
         }
 
-        // Формуємо назву: Назва (Рік) [Країна]
         var nameText = targetNames.length > 1 ? targetNames[1] : targetNames[0];
+        
+        // Формуємо рядок. Якщо країна - це цифри (рік), не додаємо її як країну
         if (year) nameText += ' (' + year + ')';
-        if (country) nameText += ' [' + country + ']';
+        if (country && !/^\d{4}$/.test(country)) nameText += ' [' + country + ']';
         
         loadComments(best.getAttribute('data-id'), link ? link.getAttribute('href') : '', nameText, cacheKey);
       }
