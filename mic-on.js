@@ -1,27 +1,37 @@
 (function () {
     'use strict';
 
-    // Створюємо стилі, які скасовують приховування мікрофона
-    var style = document.createElement('style');
-    style.textContent = `
-        .simple-keyboard-mic {
-            display: flex !important;
-            width: auto !important;
-            min-width: 40px !important;
-            opacity: 1 !important;
-            pointer-events: auto !important;
-            visibility: visible !important;
-        }
-        .simple-keyboard-mic svg {
-            display: block !important;
-            width: 24px !important;
-            height: 24px !important;
-            opacity: 1 !important;
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Додатково: якщо Lampa видаляє кнопку з DOM, ми її повертаємо
-    // (Але зазвичай вона просто прихована CSS, тому стилів вище має вистачити)
-    console.log('Rezka Mic Fix loaded');
+    // Маніфест плагіна, щоб Lampa його прийняла
+    if (window.Lampa && Lampa.Plugins) {
+        Lampa.Plugins.add({
+            name: 'Fix Mic Button',
+            description: 'Повертає кнопку мікрофона в сенсорному режимі',
+            version: '1.0.0',
+            author: 'User',
+            callback: function () {
+                // Додаємо CSS, який скасовує приховування
+                var style = document.createElement('style');
+                style.textContent = `
+                    .simple-keyboard-mic {
+                        display: flex !important;
+                        width: auto !important;
+                        min-width: 40px !important;
+                        opacity: 1 !important;
+                        pointer-events: auto !important;
+                        visibility: visible !important;
+                        position: relative !important;
+                    }
+                    .simple-keyboard-mic svg {
+                        display: block !important;
+                        width: 24px !important;
+                        height: 24px !important;
+                        opacity: 1 !important;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                console.log('Mic Fix enabled');
+            }
+        });
+    }
 })();
