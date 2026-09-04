@@ -2,8 +2,8 @@
     'use strict';
 
     var PLUGIN_ID = 'opensubtitles_ru';
-    var PLUGIN_TITLE = 'OpenSubtitles';
-    var DEFAULT_LANG = 'rus';
+    var PLUGIN_TITLE = 'OpenSubtitles2';
+    var DEFAULT_LANG = 'ukr';
 
     var ADDONS = [
         'https://opensubtitles-v3.strem.io'
@@ -56,7 +56,7 @@
     if (!window.Lampa) return;
 
     if (window.console && window.console.log) {
-        try { console.log('[OpenSubtitles]', 'plugin source loaded', PLUGIN_VERSION); } catch (e) {}
+        try { console.log('[OpenSubtitles2]', 'plugin source loaded', PLUGIN_VERSION); } catch (e) {}
     }
 
     var Lampa = window.Lampa;
@@ -179,7 +179,7 @@
         if (window.console && console.log) {
             try {
                 var args = Array.prototype.slice.call(arguments);
-                args.unshift('[OpenSubtitles]');
+                args.unshift('[OpenSubtitles2]');
                 console.log.apply(console, args);
             }
             catch (e) {}
@@ -865,7 +865,7 @@
         return 'https://rest.opensubtitles.org/search/imdbid-' + imdbDigits + '/sublanguageid-' + langCode;
     }
 
-    // REST OpenSubtitles по IMDb БЕЗ season/episode — отдаёт ВСЕ субтитры показа сразу.
+    // REST OpenSubtitles2 по IMDb БЕЗ season/episode — отдаёт ВСЕ субтитры показа сразу.
     function buildRestUrlByImdb(imdb, langCode) {
         var digits = String(imdb || '').replace(/^tt/i, '').replace(/\D/g, '');
         if (!digits) return '';
@@ -933,7 +933,7 @@
         return mapped;
     }
 
-    // Stremio-аддон и REST OpenSubtitles возвращают один и тот же саб с разными URL
+    // Stremio-аддон и REST OpenSubtitles2 возвращают один и тот же саб с разными URL
     // (например `subs5.strem.io/.../file/123456.srt` vs `subs7.strem.io/.../file/123456.srt`).
     // Чтобы дедуп их склеил, ключ берём по числовому IDSubtitleFile из URL/id.
     function subtitleDedupeKey(item, url) {
@@ -961,7 +961,7 @@
             var request = stremioRequestId(card, data, imdb);
 
             if (!request) {
-                // Без IMDb Stremio-аддоны и REST OpenSubtitles не работают, но SubDL умеет
+                // Без IMDb Stremio-аддоны и REST OpenSubtitles2 не работают, но SubDL умеет
                 // искать по tmdb_id/названию. Дёрнем его напрямую, если есть что искать.
                 var hasFallbackId = card && (card.id || card.name || card.original_name || card.title || card.original_title);
                 var auto = parseEpisode(data || {});
@@ -1387,7 +1387,7 @@
 
         mapped.sort(function (a, b) {
             if (a.rank !== b.rank) return a.rank - b.rank;
-            // При равном языковом ранге предпочитаем OpenSubtitles над SubDL: пользователь
+            // При равном языковом ранге предпочитаем OpenSubtitles2 над SubDL: пользователь
             // явно просил OS как основной источник, SubDL только когда у OS нечего взять.
             if (a.origin !== b.origin) return a.origin === 'subdl' ? 1 : -1;
             return b.score - a.score;
@@ -2048,7 +2048,7 @@
             if (subdlItems && subdlItems.length) raw = raw.concat(subdlItems);
             logDebug('title-search SubDL returned', (subdlItems || []).length, 'items');
 
-            // Шаг 2: REST OpenSubtitles по IMDb (от SubDL или из карточки) — без season/episode.
+            // Шаг 2: REST OpenSubtitles2 по IMDb (от SubDL или из карточки) — без season/episode.
             var imdb = '';
             for (var i = 0; i < (subdlItems || []).length; i++) {
                 if (subdlItems[i] && subdlItems[i].resolvedImdb) { imdb = subdlItems[i].resolvedImdb; break; }
@@ -2057,7 +2057,7 @@
 
             if (!imdb) { finalize(); return; }
 
-            // Stremio-аддон OS использует современный API OpenSubtitles и для свежих
+            // Stremio-аддон OS использует современный API OpenSubtitles2 и для свежих
             // сериалов (Invincible S04 и т.п.) почти всегда имеет сабы, в отличие от
             // legacy rest.opensubtitles.org. Без него title-search не получает ИИ-кандидатов
             // от OS на новом контенте и юзер видит только SubDL.
