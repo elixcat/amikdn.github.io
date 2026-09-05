@@ -608,6 +608,9 @@
 
     FavoritePageService.prototype.renderAddButton = function () {
         var self = this;
+        
+        // Перевірка налаштування перед відображенням
+        if (Lampa.Storage.get('custom_fav_show_add_button', true) === false) return;
 
         var $register = Lampa.Template.js('register').addClass('selector').addClass('new-custom-type');
         $register.find('.register__counter').html('<img src="./img/icons/add.svg"/>');
@@ -838,12 +841,42 @@
 
     var cardFavoriteSvc = new CardFavoriteService();
 
+    function addSettings() {
+        if (!Lampa.SettingsApi || typeof Lampa.SettingsApi.addComponent !== 'function') return;
+        
+        Lampa.SettingsApi.addComponent({ 
+            component: 'custom_favorite_settings', 
+            name: Lampa.Lang.translate('custom_favs'), 
+            icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/></svg>' 
+        });
+        
+        Lampa.SettingsApi.addParam({ 
+            component: 'custom_favorite_settings', 
+            param: { 
+                name: 'custom_fav_show_add_button', 
+                type: 'trigger', 
+                'default': true 
+            }, 
+            field: { 
+                name: Lampa.Lang.translate('custom_fav_button_title'), 
+                description: Lampa.Lang.translate('custom_fav_button_desc') 
+            } 
+        });
+    }
+
     function start() {
         if (window.custom_favorites) {
             return;
         }
 
         window.custom_favorites = true;
+
+        // Ініціалізація налаштувань
+        Lampa.Lang.add({
+            custom_fav_button_title: { ru: 'Кнопка "Добавить папку"', uk: 'Кнопка "Додати папку"' },
+            custom_fav_button_desc: { ru: 'Отображать кнопку "+" в списке закладок', uk: 'Відображати кнопку "+" у списку закладок' }
+        });
+        addSettings();
 
         var originalProfileWaiter = window.__profile_extra_waiter;
 
@@ -975,11 +1008,6 @@
                 en: 'Custom bookmarks',
                 uk: 'Користувацькі закладки',
                 ru: 'Пользовательские закладки'
-            },
-            show_add_button: {
-                en: 'Show add button',
-                uk: 'Показувати кнопку додавання',
-                ru: 'Показывать кнопку добавления'
             }
         });
 
@@ -1013,15 +1041,11 @@
             }
 
             if (Lampa.Activity.active().component === 'bookmarks') {
-                if (Lampa.Storage.get('custom_favs_show_add_button', true)) {
-                    if ($('.new-custom-type').length !== 0) {
-                        return;
-                    }
-                    favoritePageSvc.renderAddButton();
-                } else {
-                    $('.new-custom-type').remove();
+                if ($('.new-custom-type').length !== 0) {
+                    return;
                 }
 
+                favoritePageSvc.renderAddButton();
                 var favorite = customFavorite.getFavorite();
 
                 customFavorite.getTypesWithoutSystem(favorite).reverse().forEach(function (typeName) {
@@ -1041,25 +1065,6 @@
         });
 
         favoritePageSvc.registerLines();
-
-        Lampa.Listener.follow('app', function (event) {
-            if (event.type === 'ready') {
-                Lampa.Settings.listener.follow('open', function (e) {
-                    if (e.name === 'main') {
-                        var item = $('<div class="settings-item selector"><div class="settings-item__name">' + Lampa.Lang.translate('custom_favs') + '</div></div>');
-                        var checkbox = $('<div class="settings-item__checkbox"><div class="checkbox"></div></div>');
-                        if (Lampa.Storage.get('custom_favs_show_add_button', true)) checkbox.find('.checkbox').addClass('checkbox--active');
-                        item.append(checkbox);
-                        item.on('hover:enter', function () {
-                            var status = !Lampa.Storage.get('custom_favs_show_add_button', true);
-                            Lampa.Storage.set('custom_favs_show_add_button', status);
-                            checkbox.find('.checkbox').toggleClass('checkbox--active', status);
-                        });
-                        e.body.append(item);
-                    }
-                });
-            }
-        });
     }
 
     if (window.appready) {
