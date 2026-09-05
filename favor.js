@@ -884,14 +884,12 @@
             if (e.type == 'render') {
                 var $container = e.body.find('.scroll__body');
                 
-                // Видаляємо дублі, якщо вони є
+                // Видаляємо старі елементи, якщо вони є (щоб не було дублів)
                 $container.find('.custom-type, .new-custom-type').remove();
 
-                // 1. Спочатку збираємо наші папки в масив
-                var fav = customFavorite.getFavorite();
                 var items = [];
 
-                // 2. Додаємо кнопку "+" (якщо увімкнена)
+                // 1. Створюємо кнопку "+" (якщо увімкнена)
                 if (Lampa.Storage.get('custom_fav_show_add_button', true)) {
                     var $add = Lampa.Template.js('register').addClass('selector new-custom-type');
                     $add.find('.register__counter').html('<img src="./img/icons/add.svg"/>');
@@ -906,7 +904,8 @@
                     items.push($add);
                 }
 
-                // 3. Додаємо папки
+                // 2. Створюємо кастомні папки
+                var fav = customFavorite.getFavorite();
                 customFavorite.getTypesWithoutSystem(fav).forEach(function (typeName) {
                     var uid = fav.customTypes[typeName];
                     var count = (fav[uid] || []).length;
@@ -919,7 +918,7 @@
                     items.push($reg);
                 });
 
-                // 4. Вставляємо все в початок списку
+                // 3. Вставляємо все в початок контейнера (стандартні папки залишаться після них)
                 items.reverse().forEach(function($item) {
                     $container.prepend($item);
                 });
