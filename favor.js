@@ -6,7 +6,6 @@
     var HOST = window.location.origin;
     var STORAGE_KEY = "custom_favorite";
     var STORAGE_SYNC_KEY = "lampac_sync_custom_favorite";
-    var SETTINGS_KEY = "custom_fav_show_add_btn";
 
     function CustomFavoriteFolder(data) {
         var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -846,19 +845,6 @@
 
         window.custom_favorites = true;
 
-        // --- ДОДАНО: Секція налаштувань ---
-        Lampa.Settings.add({
-            name: 'custom_favs',
-            label: 'Кастомні закладки',
-            type: 'select',
-            values: { 0: 'Вимкнено', 1: 'Увімкнено' },
-            defaultValue: 1,
-            onSelect: function(value) {
-                Lampa.Storage.set(SETTINGS_KEY, value);
-            }
-        });
-        // ---------------------------------
-
         var originalProfileWaiter = window.__profile_extra_waiter;
 
         window.__profile_extra_waiter = function () {
@@ -989,6 +975,11 @@
                 en: 'Custom bookmarks',
                 uk: 'Користувацькі закладки',
                 ru: 'Пользовательские закладки'
+            },
+            show_add_button: {
+                en: 'Show add button',
+                uk: 'Показувати кнопку додавання',
+                ru: 'Показывать кнопку добавления'
             }
         });
 
@@ -1022,15 +1013,14 @@
             }
 
             if (Lampa.Activity.active().component === 'bookmarks') {
-                if ($('.new-custom-type').length !== 0) {
-                    return;
-                }
-
-                // --- Перевірка налаштування перед рендером кнопки ---
-                if (Lampa.Storage.get(SETTINGS_KEY, 1) == 1) {
+                if (Lampa.Storage.get('custom_favs_show_add_button', true)) {
+                    if ($('.new-custom-type').length !== 0) {
+                        return;
+                    }
                     favoritePageSvc.renderAddButton();
+                } else {
+                    $('.new-custom-type').remove();
                 }
-                // --------------------------------------------------
 
                 var favorite = customFavorite.getFavorite();
 
@@ -1051,6 +1041,25 @@
         });
 
         favoritePageSvc.registerLines();
+
+        Lampa.Listener.follow('app', function (event) {
+            if (event.type === 'ready') {
+                Lampa.Settings.listener.follow('open', function (e) {
+                    if (e.name === 'main') {
+                        var item = $('<div class="settings-item selector"><div class="settings-item__name">' + Lampa.Lang.translate('custom_favs') + '</div></div>');
+                        var checkbox = $('<div class="settings-item__checkbox"><div class="checkbox"></div></div>');
+                        if (Lampa.Storage.get('custom_favs_show_add_button', true)) checkbox.find('.checkbox').addClass('checkbox--active');
+                        item.append(checkbox);
+                        item.on('hover:enter', function () {
+                            var status = !Lampa.Storage.get('custom_favs_show_add_button', true);
+                            Lampa.Storage.set('custom_favs_show_add_button', status);
+                            checkbox.find('.checkbox').toggleClass('checkbox--active', status);
+                        });
+                        e.body.append(item);
+                    }
+                });
+            }
+        });
     }
 
     if (window.appready) {
