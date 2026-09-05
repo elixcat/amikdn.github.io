@@ -509,6 +509,13 @@
     function FavoritePageService() {
     }
 
+    FavoritePageService.prototype.reorderFolders = function () {
+        var $render = Lampa.Activity.active().activity.render();
+        var $container = $render.find('.scroll__body');
+        var $custom = $container.find('.new-custom-type, .custom-type');
+        $custom.each(function() { $container.prepend($(this)); });
+    }
+
     FavoritePageService.prototype.renderCustomFavoriteButton = function (type) {
         var customTypeCssClass = 'custom-type-' + type.uid;
 
@@ -594,7 +601,8 @@
             });
         });
 
-        $('.register:first', $render).after($register);
+        $render.find('.scroll__body').append($register);
+        this.reorderFolders();
         return $register;
     }
 
@@ -614,8 +622,6 @@
 
         var $register = Lampa.Template.js('register').addClass('selector').addClass('new-custom-type');
         $register.find('.register__counter').html('<img src="./img/icons/add.svg"/>');
-
-        $('.register:first').before($register);
 
         $register.on('hover:enter', function () {
             var inputOptions = {
@@ -640,6 +646,9 @@
                 }
             });
         });
+
+        Lampa.Activity.active().activity.render().find('.scroll__body').append($register);
+        this.reorderFolders();
     }
 
     FavoritePageService.prototype.registerLines = function () {
