@@ -926,8 +926,6 @@
             }
         });
 
-        
-
         HOST = Lampa.Storage.get('custom_favorite_host', '') || HOST;
         new SyncService().start();
 
