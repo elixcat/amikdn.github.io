@@ -509,13 +509,6 @@
     function FavoritePageService() {
     }
 
-    FavoritePageService.prototype.reorderFolders = function () {
-        var $render = Lampa.Activity.active().activity.render();
-        var $container = $render.find('.scroll__body');
-        var $custom = $container.find('.new-custom-type, .custom-type');
-        $custom.each(function() { $container.prepend($(this)); });
-    }
-
     FavoritePageService.prototype.renderCustomFavoriteButton = function (type) {
         var customTypeCssClass = 'custom-type-' + type.uid;
 
@@ -601,8 +594,7 @@
             });
         });
 
-        $render.find('.scroll__body').append($register);
-        this.reorderFolders();
+        $('.register:first', $render).after($register);
         return $register;
     }
 
@@ -622,6 +614,8 @@
 
         var $register = Lampa.Template.js('register').addClass('selector').addClass('new-custom-type');
         $register.find('.register__counter').html('<img src="./img/icons/add.svg"/>');
+
+        $('.register:first').before($register);
 
         $register.on('hover:enter', function () {
             var inputOptions = {
@@ -646,9 +640,6 @@
                 }
             });
         });
-
-        Lampa.Activity.active().activity.render().find('.scroll__body').append($register);
-        this.reorderFolders();
     }
 
     FavoritePageService.prototype.registerLines = function () {
@@ -850,68 +841,76 @@
 
     var cardFavoriteSvc = new CardFavoriteService();
 
+
+
     function addSettings() {
         if (!Lampa.SettingsApi || typeof Lampa.SettingsApi.addComponent !== 'function') return;
-        
         Lampa.SettingsApi.addComponent({ 
             component: 'custom_favorite_settings', 
             name: Lampa.Lang.translate('custom_fav_settings_name'), 
             icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/></svg>' 
         });
-        
         Lampa.SettingsApi.addParam({ 
             component: 'custom_favorite_settings', 
-            param: { 
-                name: 'custom_fav_show_add_button', 
-                type: 'trigger', 
-                'default': true 
-            }, 
-            field: { 
-                name: Lampa.Lang.translate('custom_fav_button_title'), 
-                description: Lampa.Lang.translate('custom_fav_button_desc') 
-            } 
+            param: { name: 'custom_fav_show_add_button', type: 'trigger', 'default': true }, 
+            field: { name: Lampa.Lang.translate('custom_fav_button_title'), description: Lampa.Lang.translate('custom_fav_button_desc') } 
         });
     }
 
     function start() {
-        if (window.custom_favorites) {
-            return;
-        }
-
+        if (window.custom_favorites) return;
         window.custom_favorites = true;
 
-        // Локалізація
         Lampa.Lang.add({
             custom_fav_settings_name: { ru: 'Кастомные закладки', uk: 'Користувацькі закладки' },
             custom_fav_button_title: { ru: 'Кнопка "Добавить папку"', uk: 'Кнопка "Додати папку"' },
             custom_fav_button_desc: { ru: 'Отображать кнопку "+" в списке закладок', uk: 'Відображати кнопку "+" у списку закладок' },
-            rename: { en: 'Rename', uk: 'Змінити ім’я', ru: 'Изменить имя' },
-            invalid_name: { en: 'Invalid name', uk: 'Некоректне ім’я', ru: 'Некорректное имя' },
             custom_favs: { en: 'Custom bookmarks', uk: 'Користувацькі закладки', ru: 'Пользовательские закладки' }
         });
-        
         addSettings();
 
-        var originalProfileWaiter = window.__profile_extra_waiter;
+        // 
+        Lampa.Listener.follow('bookmarks', function(e) {
+            if (e.type == 'render') {
+                var $render = e.body;
+                var $container = $render.find('.scroll__body');
+                
+                // Видаляємо дублікати, якщо вони вже є
+                $render.find('.custom-type, .new-custom-type').remove();
 
-        window.__profile_extra_waiter = function () {
-            var synced = Lampa.Storage.get(STORAGE_SYNC_KEY, 0) !== 0;
+                // Додаємо кнопку +
+                if (Lampa.Storage.get('custom_fav_show_add_button', true)) {
+                    var $add = Lampa.Template.js('register').addClass('selector new-custom-type');
+                    $add.find('.register__counter').html('<img src="./img/icons/add.svg"/>');
+                    $add.on('hover:enter', function () {
+                        Lampa.Input.edit({ title: Lampa.Lang.translate('filter_set_name'), value: '', free: true }, function (value) {
+                            if (value && value !== 'card') {
+                                customFavorite.createType(value);
+                                Lampa.Activity.active().activity.toggle(); // Перезавантаження
+                            }
+                        });
+                    });
+                    $container.prepend($add);
+                }
 
-            if (typeof originalProfileWaiter === 'function') {
-                synced = synced && !!originalProfileWaiter();
-            }
-
-            return synced;
-        }
-
-        Lampa.Storage.listener.follow('change', function (event) {
-            if (event.name == 'lampac_sync_favorite' && event.value == 0) {
-                Lampa.Storage.set(STORAGE_KEY, '{}', true);
-                Lampa.Storage.set(STORAGE_SYNC_KEY, 0, true);
-
-                customFavorite.init({});
+                // Додаємо наші папки
+                var fav = customFavorite.getFavorite();
+                customFavorite.getTypesWithoutSystem(fav).reverse().forEach(function (typeName) {
+                    var uid = fav.customTypes[typeName];
+                    var count = (fav[uid] || []).length;
+                    
+                    var $reg = Lampa.Template.js('register').addClass('selector custom-type');
+                    $reg.find('.register__name').text(typeName);
+                    $reg.find('.register__counter').text(count);
+                    $reg.on('hover:enter', function() {
+                        Lampa.Activity.push({ component: 'favorite', title: typeName, type: uid, page: 1 });
+                    });
+                    $container.prepend($reg); // Додаємо на початок
+                });
             }
         });
+        
+        
 
         HOST = Lampa.Storage.get('custom_favorite_host', '') || HOST;
         new SyncService().start();
